@@ -1,0 +1,6 @@
+@ASPNetProject_HostAddress = http://localhost:5250
+
+GET {{ASPNetProject_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
