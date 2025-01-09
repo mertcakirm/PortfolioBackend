@@ -1,9 +1,9 @@
-using MainPage.Repositories;
+using Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Skills.Repositories;
+using Repositories;
 using System;
 
-namespace MainPage.Controllers
+namespace Controllers
 {
     [ApiController]
     [Route("api/skills")]
@@ -38,7 +38,7 @@ namespace MainPage.Controllers
 
             try
             {
-                var skill = new Skills.Repositories.Skills
+                var skill = new Skills
                 {
                     id = request.id,
                     SkillName = request.SkillName,
@@ -80,7 +80,7 @@ namespace MainPage.Controllers
 
             try
             {
-                var skill = new Skills.Repositories.Skills
+                var skill = new Skills
                 {
                     SkillName = request.SkillName,
                     proficiency = request.proficiency,

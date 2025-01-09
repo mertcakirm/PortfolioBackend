@@ -3,7 +3,7 @@ using System.Linq;
 using Dapper;
 using MySql.Data.MySqlClient;
 
-namespace MainPage.Repositories
+namespace Repositories
 {
     public class MainpageRepository
     {

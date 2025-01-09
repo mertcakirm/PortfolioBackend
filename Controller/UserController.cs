@@ -1,17 +1,18 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using UserRepository.Repositories;
+using Repositories;
 
-namespace User.Controllers
+
+namespace Controllers
 {
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly UserRepository.Repositories.UserRepository _userRepository;
+        private readonly UserRepository _userRepository;
 
-        public AuthController(UserRepository.Repositories.UserRepository userRepository)
+        public AuthController(UserRepository userRepository)
         {
             _userRepository = userRepository;
         }
@@ -42,7 +43,7 @@ namespace User.Controllers
                 return BadRequest(new { message = "Username and password are required." });
             }
 
-            var user = new UserRepository.Repositories.User
+            var user = new User
             {
                 Username = request.Username,
                 Password = Utils.HashPassword(request.Password)

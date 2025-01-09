@@ -1,8 +1,8 @@
-using MainPage.Repositories;
+using Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
-namespace MainPage.Controllers
+namespace Controllers
 {
     [ApiController]
     [Route("api/mainpage")]

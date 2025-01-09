@@ -3,7 +3,7 @@ using System.Linq;
 using Dapper;
 using MySql.Data.MySqlClient;
 
-namespace Skills.Repositories
+namespace Repositories
 {
     public class SkillsRepository
     {
