@@ -18,6 +18,8 @@ builder.Services.AddScoped(sp =>{
 builder.Services.AddScoped<Repositories.MainpageRepository>();
 builder.Services.AddScoped<Repositories.SkillsRepository>();
 builder.Services.AddScoped<Repositories.UserRepository>();
+builder.Services.AddScoped<Repositories.ProjectsRepository>();
+builder.Services.AddScoped<Repositories.RoleRepository>();
 
 var app = builder.Build();
 
@@ -26,9 +28,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-
 app.UseHttpsRedirection();
-
 
 app.MapControllers();
 
