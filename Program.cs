@@ -20,6 +20,7 @@ builder.Services.AddScoped<Repositories.SkillsRepository>();
 builder.Services.AddScoped<Repositories.UserRepository>();
 builder.Services.AddScoped<Repositories.ProjectsRepository>();
 builder.Services.AddScoped<Repositories.RoleRepository>();
+builder.Services.AddScoped<Repositories.BlogRepository>();
 
 var app = builder.Build();
 
