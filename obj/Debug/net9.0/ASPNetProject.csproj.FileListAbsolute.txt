@@ -54,3 +54,4 @@
 /Users/mertcakir/visualStudioProject/ASPNetProject/obj/Debug/net9.0/ASPNetProject.genruntimeconfig.cache
 /Users/mertcakir/visualStudioProject/ASPNetProject/obj/Debug/net9.0/ref/ASPNetProject.dll
 /Users/mertcakir/visualStudioProject/ASPNetProject/bin/Debug/net9.0/Dapper.dll
+/Users/mertcakir/visualStudioProject/ASPNetProject/obj/Debug/net9.0/ASPNetProject.sourcelink.json

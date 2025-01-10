@@ -1,6 +1,5 @@
-using MainPage.Repositories;
 using MySql.Data.MySqlClient;
-using Skills.Repositories;
+using Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://localhost:5260");
@@ -16,9 +15,9 @@ builder.Services.AddScoped(sp =>{
 
 });
 
-builder.Services.AddScoped<UserRepository.Repositories.UserRepository>();
-builder.Services.AddScoped<MainpageRepository>();
-builder.Services.AddScoped<SkillsRepository>();
+builder.Services.AddScoped<Repositories.MainpageRepository>();
+builder.Services.AddScoped<Repositories.SkillsRepository>();
+builder.Services.AddScoped<Repositories.UserRepository>();
 
 var app = builder.Build();
 
