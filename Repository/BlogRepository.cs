@@ -1,4 +1,5 @@
 using Dapper;
+using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using MySql.Data.MySqlClient;
 
 namespace Repositories
@@ -112,6 +113,16 @@ namespace Repositories
                 }
             }
         }
+
+
+        public bool DeleteBlog(int id){
+            var query = @"DELETE FROM Blogs WHERE Blogid=@id";
+            {
+                var affectedRows = _connection.Execute(query, new { Id = id });
+                return affectedRows > 0;
+            }
+        }
+        
 
 
     }

@@ -64,6 +64,22 @@ namespace Controllers
             }
         }
 
+        [HttpDelete("delete/{id}")]
+        public IActionResult DeleteBlog(int id)
+        {
+            try
+            {
+                var result = _blogRepository.DeleteBlog(id);
+                if (result)
+                    return Ok("Blog page data deleted successfully.");
+                return BadRequest("Failed to delete Blog page data.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error deleting data: {ex.Message}");
+            }
+        }
+
     }
 
     public class BlogReq
