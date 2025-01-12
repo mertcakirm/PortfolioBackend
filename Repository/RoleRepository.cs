@@ -13,18 +13,18 @@ namespace Repositories
         }
 
 
-    public List<Role> GetRoles()
-    {
-        const string query = "SELECT * FROM Roles";
+        public List<Role> GetRoles()
         {
-            return _connection.Query<Role>(query).ToList();
+            const string query = "SELECT * FROM Roles";
+            {
+                return _connection.Query<Role>(query).ToList();
+            }
         }
-    }
-    
 
-    public bool UpdateRole(Role request)
-    {
-        const string query= @"
+
+        public bool UpdateRole(Role request)
+        {
+            const string query = @"
         UPDATE Roles
         SET RoleName=@RoleName
         WHERE Roleid = @Roleid";
@@ -32,31 +32,31 @@ namespace Repositories
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
             }
-    }
+        }
 
 
-    public bool DeleteRole(int id)
-    {
+        public bool DeleteRole(int id)
+        {
             const string query = "DELETE FROM Roles WHERE Roleid = @id";
             {
                 var affectedRows = _connection.Execute(query, new { Id = id });
                 return affectedRows > 0;
             }
-    }
+        }
 
-    public bool AddRole(Role request)
-    {
-        const string query= @" 
+        public bool AddRole(Role request)
+        {
+            const string query = @" 
         INSERT INTO Roles (RoleName) 
             VALUES (@RoleName)";
-    
+
 
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
             }
 
-    }
+        }
 
     }
 

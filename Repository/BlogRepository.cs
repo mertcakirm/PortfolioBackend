@@ -6,7 +6,7 @@ namespace Repositories
     public class BlogRepository
     {
         private readonly MySqlConnection _connection;
-        
+
         public BlogRepository(MySqlConnection connection)
         {
             _connection = connection;
@@ -14,9 +14,9 @@ namespace Repositories
 
 
 
-                public async Task<List<Blog>> GetBlog()
-                {
-                    const string query = @"
+        public async Task<List<Blog>> GetBlog()
+        {
+            const string query = @"
                     SELECT 
                         b.Blogid AS Blogid,
                         b.BlogName AS BlogName,
@@ -36,34 +36,34 @@ namespace Repositories
                         b.Blogid = bc.Blogid;
                     ";
 
-                    var blogDictionary = new Dictionary<int, Blog>();
+            var blogDictionary = new Dictionary<int, Blog>();
 
-                    var blogs = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
-                        query,
-                        (blog, blogContent) =>
-                        {
-                            if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
-                            {
-                                currentBlog = blog;
-                                currentBlog.blog_Contents = new List<Blog_Contents>();
-                                blogDictionary.Add(currentBlog.Blogid, currentBlog);
-                            }
+            var blogs = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
+                query,
+                (blog, blogContent) =>
+                {
+                    if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
+                    {
+                        currentBlog = blog;
+                        currentBlog.blog_Contents = new List<Blog_Contents>();
+                        blogDictionary.Add(currentBlog.Blogid, currentBlog);
+                    }
 
-                            if (blogContent != null)
-                            {
-                                currentBlog.blog_Contents.Add(blogContent);
-                            }
+                    if (blogContent != null)
+                    {
+                        currentBlog.blog_Contents.Add(blogContent);
+                    }
 
-                            return currentBlog;
-                        },
-                        splitOn: "id"
-                    );
+                    return currentBlog;
+                },
+                splitOn: "id"
+            );
 
-                    return blogs.Distinct().ToList();
-                }
+            return blogs.Distinct().ToList();
+        }
 
 
-  public async Task AddBlogWithContentsAsync(Blog blog)
+        public async Task AddBlogWithContentsAsync(Blog blog)
         {
             const string insertBlogQuery = @"
                 INSERT INTO Blogs (BlogName, Blog_image_base64)
@@ -111,22 +111,24 @@ namespace Repositories
                     throw;
                 }
             }
-            }
+        }
 
 
     }
 
-    public class Blog{
+    public class Blog
+    {
         public int Blogid { get; set; }
         public string BlogName { get; set; }
         public string Blog_image_base64 { get; set; }
-        public List<Blog_Contents> blog_Contents{ get; set; }
+        public List<Blog_Contents> blog_Contents { get; set; }
 
     }
-    public class Blog_Contents{
+    public class Blog_Contents
+    {
         public int id { get; set; }
         public string title_en { get; set; }
-        public string title_tr  { get; set; }
+        public string title_tr { get; set; }
         public string content_en { get; set; }
         public string content_tr { get; set; }
         public string image_base64 { get; set; }

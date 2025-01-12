@@ -18,11 +18,12 @@ namespace Controllers
         [HttpGet("get/all")]
         public IActionResult GetProjects()
         {
-            try{
+            try
+            {
                 var projects = _projectsRepository.GetProjects();
                 return Ok(projects);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, $"Error retrieving data: {ex.Message}");
             }
@@ -38,16 +39,16 @@ namespace Controllers
             {
                 var project = new Projects
                 {
-                    id=request.id,
-                    title_tr=request.title_tr,
-                    description_tr=request.description_tr,
-                    title_en=request.title_en,
-                    description_en=request.description_en,
-                    image_base64=request.image_base64,
-                    href=request.href,
-                    Used_skills=request.Used_skills,
+                    id = request.id,
+                    title_tr = request.title_tr,
+                    description_tr = request.description_tr,
+                    title_en = request.title_en,
+                    description_en = request.description_en,
+                    image_base64 = request.image_base64,
+                    href = request.href,
+                    Used_skills = request.Used_skills,
                 };
-                var result=_projectsRepository.UpdateProject(project);
+                var result = _projectsRepository.UpdateProject(project);
                 if (result)
                     return Ok("Home page updated successfully.");
                 return BadRequest("Failed to update home page.");
@@ -87,13 +88,13 @@ namespace Controllers
             {
                 var newProject = new Projects
                 {
-                    title_tr=request.title_tr,
-                    description_tr=request.description_tr,
-                    title_en=request.title_en,
-                    description_en=request.description_en,
-                    image_base64=request.image_base64,
-                    href=request.href,
-                    Used_skills=request.Used_skills,
+                    title_tr = request.title_tr,
+                    description_tr = request.description_tr,
+                    title_en = request.title_en,
+                    description_en = request.description_en,
+                    image_base64 = request.image_base64,
+                    href = request.href,
+                    Used_skills = request.Used_skills,
                 };
 
                 var result = _projectsRepository.AddProjects(newProject);
@@ -112,7 +113,7 @@ namespace Controllers
 
 
 
-        public class ProjectRequest
+    public class ProjectRequest
     {
         public int id { get; set; }
         public string title_tr { get; set; }

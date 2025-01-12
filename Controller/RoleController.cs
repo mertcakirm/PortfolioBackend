@@ -18,11 +18,12 @@ namespace Controllers
         [HttpGet("get/all")]
         public IActionResult GetRoles()
         {
-            try{
+            try
+            {
                 var roles = _rolesRepository.GetRoles();
                 return Ok(roles);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, $"Error retrieving data: {ex.Message}");
             }
@@ -38,11 +39,11 @@ namespace Controllers
             {
                 var role = new Role
                 {
-                    Roleid=request.Roleid,
-                    RoleName=request.RoleName,
+                    Roleid = request.Roleid,
+                    RoleName = request.RoleName,
 
                 };
-                var result=_rolesRepository.UpdateRole(role);
+                var result = _rolesRepository.UpdateRole(role);
                 if (result)
                     return Ok("Role updated successfully.");
                 return BadRequest("Failed to update Role");
@@ -82,7 +83,7 @@ namespace Controllers
             {
                 var role = new Role
                 {
-                    RoleName=request.RoleName,
+                    RoleName = request.RoleName,
 
 
                 };
@@ -103,7 +104,7 @@ namespace Controllers
 
 
 
-        public class RoleRequest
+    public class RoleRequest
     {
         public int Roleid { get; set; }
         public string RoleName { get; set; }

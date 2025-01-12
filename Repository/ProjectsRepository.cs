@@ -13,18 +13,18 @@ namespace Repositories
         }
 
 
-    public List<Projects> GetProjects()
-    {
-        const string query = "SELECT * FROM Projects";
+        public List<Projects> GetProjects()
         {
-            return _connection.Query<Projects>(query).ToList();
+            const string query = "SELECT * FROM Projects";
+            {
+                return _connection.Query<Projects>(query).ToList();
+            }
         }
-    }
-    
 
-    public bool UpdateProject(Projects request)
-    {
-        const string query= @"
+
+        public bool UpdateProject(Projects request)
+        {
+            const string query = @"
         UPDATE Projects
         SET title_tr=@title_tr
             description_tr=@description_tr
@@ -38,31 +38,31 @@ namespace Repositories
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
             }
-    }
+        }
 
 
-    public bool DeleteProject(int id)
-    {
+        public bool DeleteProject(int id)
+        {
             const string query = "DELETE FROM Projects WHERE id = @id";
             {
                 var affectedRows = _connection.Execute(query, new { Id = id });
                 return affectedRows > 0;
             }
-    }
+        }
 
-    public bool AddProjects(Projects request)
-    {
-        const string query= @" 
+        public bool AddProjects(Projects request)
+        {
+            const string query = @" 
         INSERT INTO Projects (title_tr, description_tr, title_en, description_en, image_base64,href,Used_skills) 
             VALUES (@title_tr, @description_tr, @title_en, @description_en, @image_base64, @href, @Used_skills)";
-    
+
 
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
             }
 
-    }
+        }
 
     }
 

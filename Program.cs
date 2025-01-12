@@ -8,7 +8,8 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddScoped(sp =>{
+builder.Services.AddScoped(sp =>
+{
     var con = new MySqlConnection(builder.Configuration["ConnectionStrings:MySql"]);
     con.Open();
     return con;
