@@ -8,12 +8,22 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
+// CORS yapılandırması ekleniyor
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddScoped(sp =>
 {
     var con = new MySqlConnection(builder.Configuration["ConnectionStrings:MySql"]);
     con.Open();
     return con;
-
 });
 
 builder.Services.AddScoped<Repositories.MainpageRepository>();
@@ -24,6 +34,8 @@ builder.Services.AddScoped<Repositories.RoleRepository>();
 builder.Services.AddScoped<Repositories.BlogRepository>();
 
 var app = builder.Build();
+
+app.UseCors("AllowSpecificOrigin");
 
 if (app.Environment.IsDevelopment())
 {
