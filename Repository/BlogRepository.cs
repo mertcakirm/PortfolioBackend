@@ -22,6 +22,7 @@ namespace Repositories
                         b.Blogid AS Blogid,
                         b.BlogName AS BlogName,
                         b.Blog_image_base64 AS Blog_image_base64,
+                        b.Blog_description AS Blog_description,
                         bc.id AS id,
                         bc.title_en AS title_en,
                         bc.title_tr AS title_tr,
@@ -67,8 +68,8 @@ namespace Repositories
         public async Task AddBlogWithContentsAsync(Blog blog)
         {
             const string insertBlogQuery = @"
-                INSERT INTO Blogs (BlogName, Blog_image_base64)
-                VALUES (@BlogName, @Blog_image_base64);
+                INSERT INTO Blogs (BlogName, Blog_image_base64,Blog_description)
+                VALUES (@BlogName, @Blog_image_base64 ,@Blog_description);
                 SELECT LAST_INSERT_ID();";
 
             const string insertBlogContentQuery = @"
@@ -132,6 +133,7 @@ namespace Repositories
         public int Blogid { get; set; }
         public string BlogName { get; set; }
         public string Blog_image_base64 { get; set; }
+        public string Blog_description { get; set; }
         public List<Blog_Contents> blog_Contents { get; set; }
 
     }

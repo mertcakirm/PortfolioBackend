@@ -43,6 +43,7 @@ namespace Controllers
                     Blogid = request.Blogid,
                     BlogName = request.BlogName,
                     Blog_image_base64 = request.Blog_image_base64,
+                    Blog_description = request.Blog_description,
                     blog_Contents = request.blog_Contents.Select(content => new Blog_Contents
                     {
                         id = content.id,
@@ -87,6 +88,8 @@ namespace Controllers
         public int Blogid { get; set; }
         public string BlogName { get; set; }
         public string Blog_image_base64 { get; set; }
+        public string Blog_description { get; set; }
+
         public List<Blog_Contents> blog_Contents { get; set; }
 
     }
