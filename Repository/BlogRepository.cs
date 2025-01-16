@@ -24,47 +24,69 @@ namespace Repositories
                         b.Blog_image_base64 AS Blog_image_base64,
                         b.Blog_description AS Blog_description,
                         b.BLOG_desc_tr AS BLOG_desc_tr,
-                        b.BLOG_Name_tr AS BLOG_Name_tr,
-                        bc.id AS id,
-                        bc.title_en AS title_en,
-                        bc.title_tr AS title_tr,
-                        bc.content_en AS content_en,
-                        bc.content_tr AS content_tr,
-                        bc.image_base64 AS image_base64,
-                        bc.Blogid AS Blogid
+                        b.BLOG_Name_tr AS BLOG_Name_tr
                     FROM 
                         Blogs b
-                    LEFT JOIN 
-                        Blog_Contents bc
-                    ON 
-                        b.Blogid = bc.Blogid;
                     ";
 
-            var blogDictionary = new Dictionary<int, Blog>();
-
-            var blogs = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
-                query,
-                (blog, blogContent) =>
-                {
-                    if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
-                    {
-                        currentBlog = blog;
-                        currentBlog.blog_Contents = new List<Blog_Contents>();
-                        blogDictionary.Add(currentBlog.Blogid, currentBlog);
-                    }
-
-                    if (blogContent != null)
-                    {
-                        currentBlog.blog_Contents.Add(blogContent);
-                    }
-
-                    return currentBlog;
-                },
-                splitOn: "id"
-            );
-
-            return blogs.Distinct().ToList();
+            return _connection.Query<Blog>(query).ToList();
         }
+
+                public async Task<Blog> GetBlog(int id)
+                {
+                    const string query = @"
+                        SELECT 
+                            b.Blogid AS Blogid,
+                            b.BlogName AS BlogName,
+                            b.Blog_image_base64 AS Blog_image_base64,
+                            b.Blog_description AS Blog_description,
+                            b.BLOG_desc_tr AS BLOG_desc_tr,
+                            b.BLOG_Name_tr AS BLOG_Name_tr,
+                            bc.id AS id,
+                            bc.title_en AS title_en,
+                            bc.title_tr AS title_tr,
+                            bc.content_en AS content_en,
+                            bc.content_tr AS content_tr,
+                            bc.image_base64 AS image_base64,
+                            bc.Blogid AS Blogid
+                        FROM 
+                            Blogs b
+                        LEFT JOIN 
+                            Blog_Contents bc
+                        ON 
+                            b.Blogid = bc.Blogid
+                        WHERE
+                            b.Blogid = @id;
+                    ";
+
+                    var blogDictionary = new Dictionary<int, Blog>();
+
+                    var result = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
+                        query,
+                        (blog, content) =>
+                        {
+                            // Blog zaten dictionary'de mevcutsa ekleme
+                            if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
+                            {
+                                currentBlog = blog;
+                                currentBlog.blog_Contents = new List<Blog_Contents>();
+                                blogDictionary.Add(blog.Blogid, currentBlog);
+                            }
+
+                            // İçerik varsa ekleme
+                            if (content != null)
+                            {
+                                currentBlog.blog_Contents.Add(content);
+                            }
+
+                            return currentBlog;
+                        },
+                        new { id }
+                    );
+
+                    return blogDictionary.Values.FirstOrDefault();
+                }
+
 
 
         public async Task AddBlogWithContentsAsync(Blog blog)
@@ -105,12 +127,10 @@ namespace Repositories
                         }, transaction);
                     }
 
-                    // Commit the transaction
                     transaction.Commit();
                 }
                 catch
                 {
-                    // Rollback the transaction in case of an error
                     transaction.Rollback();
                     throw;
                 }
@@ -119,11 +139,10 @@ namespace Repositories
 
 
         public bool DeleteBlog(int id){
-            var query = @"DELETE FROM Blogs WHERE Blogid=@id";
-            {
-                var affectedRows = _connection.Execute(query, new { Id = id });
-                return affectedRows > 0;
-            }
+        var query = @"DELETE FROM Blogs WHERE Blogid = @id";
+        var affectedRows = _connection.Execute(query, new { id });
+        return affectedRows > 0;
+
         }
         
 

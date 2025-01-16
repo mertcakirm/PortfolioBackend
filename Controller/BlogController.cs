@@ -28,6 +28,26 @@ namespace Controllers
                 return StatusCode(500, $"Error retrieving data: {ex.Message}");
             }
         }
+        
+            [HttpGet("get/{id}")]
+            public async Task<IActionResult> GetBlog(int id)
+            {
+                try
+                {
+                    var blog = await _blogRepository.GetBlog(id);
+
+                    if (blog == null)
+                    {
+                        return NotFound($"Blog with ID {id} not found.");
+                    }
+
+                    return Ok(blog);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Error retrieving data: {ex.Message}");
+                }
+            }
 
 
         [HttpPost("add")]
