@@ -15,7 +15,7 @@ namespace Repositories
 
 
 
-        public async Task<List<Blog>> GetBlog()
+        public async Task<List<Blog>> GetBlogs()
         {
             const string query = @"
                     SELECT 
@@ -23,6 +23,8 @@ namespace Repositories
                         b.BlogName AS BlogName,
                         b.Blog_image_base64 AS Blog_image_base64,
                         b.Blog_description AS Blog_description,
+                        b.BLOG_desc_tr AS BLOG_desc_tr,
+                        b.BLOG_Name_tr AS BLOG_Name_tr,
                         bc.id AS id,
                         bc.title_en AS title_en,
                         bc.title_tr AS title_tr,
@@ -133,6 +135,8 @@ namespace Repositories
         public int Blogid { get; set; }
         public string BlogName { get; set; }
         public string Blog_image_base64 { get; set; }
+        public string BLOG_Name_tr { get; set; }
+        public string BLOG_desc_tr { get; set; }
         public string Blog_description { get; set; }
         public List<Blog_Contents> blog_Contents { get; set; }
 

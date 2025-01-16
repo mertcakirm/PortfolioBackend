@@ -20,7 +20,7 @@ namespace Controllers
         {
             try
             {
-                var blogs = await _blogRepository.GetBlog(); // Asenkron çağrı
+                var blogs = await _blogRepository.GetBlogs();
                 return Ok(blogs);
             }
             catch (Exception ex)
@@ -44,6 +44,8 @@ namespace Controllers
                     BlogName = request.BlogName,
                     Blog_image_base64 = request.Blog_image_base64,
                     Blog_description = request.Blog_description,
+                    BLOG_desc_tr = request.BLOG_desc_tr,
+                    BLOG_Name_tr = request.BLOG_Name_tr,
                     blog_Contents = request.blog_Contents.Select(content => new Blog_Contents
                     {
                         id = content.id,
@@ -89,6 +91,9 @@ namespace Controllers
         public string BlogName { get; set; }
         public string Blog_image_base64 { get; set; }
         public string Blog_description { get; set; }
+        public string BLOG_Name_tr { get; set; }
+
+        public string BLOG_desc_tr { get; set; }
 
         public List<Blog_Contents> blog_Contents { get; set; }
 
