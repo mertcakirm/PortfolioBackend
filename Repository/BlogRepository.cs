@@ -38,7 +38,6 @@ namespace Repositories
                         SELECT 
                             b.Blogid AS Blogid,
                             b.BlogName AS BlogName,
-                            b.Blog_image_base64 AS Blog_image_base64,
                             b.Blog_description AS Blog_description,
                             b.BLOG_desc_tr AS BLOG_desc_tr,
                             b.BLOG_Name_tr AS BLOG_Name_tr,
