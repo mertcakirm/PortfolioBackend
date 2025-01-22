@@ -59,7 +59,6 @@ namespace Repositories
                     ";
 
                     var blogDictionary = new Dictionary<int, Blog>();
-
                     var result = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
                         query,
                         (blog, content) =>
@@ -103,17 +102,15 @@ namespace Repositories
             {
                 try
                 {
-                    // Add blog and get the generated Blogid
                     var blogId = await _connection.ExecuteScalarAsync<int>(insertBlogQuery, new
                     {
                         blog.BlogName,
                         blog.Blog_image_base64
                     }, transaction);
 
-                    // Add each blog content
                     foreach (var content in blog.blog_Contents)
                     {
-                        content.Blogid = blogId; // Assign the Blogid to the content
+                        content.Blogid = blogId; 
 
                         await _connection.ExecuteAsync(insertBlogContentQuery, new
                         {

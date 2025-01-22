@@ -52,7 +52,7 @@ namespace Repositories
 
         public List<User> GetUsers()
         {
-            const string query = "SELECT Uid,Username FROM User";
+            const string query = "SELECT Uid,Username,Roleid FROM User";
             {
                 return _connection.Query<User>(query).ToList();
             }
@@ -64,5 +64,6 @@ namespace Repositories
         public int Uid { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public int RoleId { get; set; }
     }
 }
