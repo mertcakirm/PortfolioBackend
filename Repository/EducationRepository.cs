@@ -27,7 +27,7 @@ namespace Repositories
         {
             const string query = @"
                 UPDATE Educations 
-                SET EducationName = @EducationName, 
+                SET EducationText = @EducationText, 
                 WHERE id = @id";
             {
                 var affectedRows = _connection.Execute(query, request);
@@ -47,8 +47,8 @@ namespace Repositories
         public bool AddEducations(EducationQuery request)
         {
             const string query = @"
-                INSERT INTO Educations (EducationName) 
-                VALUES (@EducationName";
+                INSERT INTO Educations (EducationText) 
+                VALUES (@EducationText)";
 
             {
                 var affectedRows = _connection.Execute(query, request);
@@ -59,7 +59,7 @@ namespace Repositories
     public class EducationQuery
     {
         public int id { get; set; }
-        public string EducationName { get; set; }
+        public string EducationText { get; set; }
     }
 
 }

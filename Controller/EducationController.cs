@@ -21,8 +21,8 @@ namespace Controllers
         {
             try
             {
-                var SkillData = _educationRepository.GetEducations();
-                return Ok(SkillData);
+                var EducationData = _educationRepository.GetEducations();
+                return Ok(EducationData);
             }
             catch (Exception ex)
             {
@@ -41,7 +41,7 @@ namespace Controllers
                 var education = new EducationQuery
                 {
                     id = request.id,
-                    EducationName = request.EducationName,
+                    EducationText = request.EducationText,
                 };
 
                 var result = _educationRepository.UpdateEducation(education);
@@ -81,7 +81,7 @@ namespace Controllers
             {
                 var education = new EducationQuery
                 {
-                    EducationName = request.EducationName,
+                    EducationText = request.EducationText,
                 };
 
                 var result = _educationRepository.AddEducations(education);
@@ -99,7 +99,7 @@ namespace Controllers
     public class Education
     {
         public int id { get; set; }        
-        public string EducationName { get; set; }
+        public string EducationText { get; set; }
 
 
     }
