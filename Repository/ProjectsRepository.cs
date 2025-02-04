@@ -41,17 +41,18 @@ namespace Repositories
         }
 
 
-        public bool DeleteProject(int id)
+        public bool DeleteProject(int Id)
         {
-            const string query = "DELETE FROM Projects WHERE id = @id";
+            const string query = "DELETE FROM Projects WHERE id = @Id";
             {
-                var affectedRows = _connection.Execute(query, new { Id = id });
+                var affectedRows = _connection.Execute(query, new { id = Id });
                 return affectedRows > 0;
             }
         }
 
         public bool AddProjects(Projects request)
         {
+            try{
             const string query = @" 
         INSERT INTO Projects (title_tr, description_tr, title_en, description_en, image_base64,href,Used_skills) 
             VALUES (@title_tr, @description_tr, @title_en, @description_en, @image_base64, @href, @Used_skills)";
@@ -61,6 +62,12 @@ namespace Repositories
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
             }
+            }catch(Exception ex){
+                
+                Console.WriteLine(ex);
+                return false;
+            }
+
 
         }
 
