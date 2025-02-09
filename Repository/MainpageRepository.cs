@@ -30,7 +30,6 @@ namespace Repositories
                     description_tr = @description_tr, 
                     header_en = @header_en, 
                     description_en = @description_en, 
-                    main_image_base64 = @main_image_base64
                 WHERE id = @Id";
 
             {
@@ -51,14 +50,21 @@ namespace Repositories
         public bool AddHomeData(HomePage request)
         {
             const string query = @"
-                INSERT INTO Homepage (header_tr, description_tr, header_en, description_en, main_image_base64) 
-                VALUES (@header_tr, @description_tr, @header_en, @description_en, @main_image_base64)";
+                INSERT INTO Homepage (header_tr, description_tr, header_en, description_en) 
+                VALUES (@header_tr, @description_tr, @header_en, @description_en)";
 
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
             }
         }
+
+    public bool ImageUpdate(string base64_image)
+    {
+        const string query = @"UPDATE Homepage SET main_image_base64 = @base64_image";
+        var affectedRows = _connection.Execute(query, new { base64_image });
+        return affectedRows > 0;
+    }
 
     }
     public class HomePage
@@ -68,7 +74,6 @@ namespace Repositories
         public string description_tr { get; set; }
         public string header_en { get; set; }
         public string description_en { get; set; }
-        public string main_image_base64 { get; set; }
     }
 
 }

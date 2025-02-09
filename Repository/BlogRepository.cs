@@ -1,6 +1,9 @@
 using Dapper;
-using Microsoft.AspNetCore.Authentication.OAuth.Claims;
 using MySql.Data.MySqlClient;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repositories
 {
@@ -13,135 +16,119 @@ namespace Repositories
             _connection = connection;
         }
 
-
-
+        // ✅ Blog listesini getir
         public async Task<List<Blog>> GetBlogs()
         {
             const string query = @"
-                    SELECT 
-                        b.Blogid AS Blogid,
-                        b.BlogName AS BlogName,
-                        b.Blog_image_base64 AS Blog_image_base64,
-                        b.Blog_description AS Blog_description,
-                        b.BLOG_desc_tr AS BLOG_desc_tr,
-                        b.BLOG_Name_tr AS BLOG_Name_tr
-                    FROM 
-                        Blogs b
-                    ";
+                SELECT 
+                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr
+                FROM Blogs";
 
-            return _connection.Query<Blog>(query).ToList();
+            var blogs = await _connection.QueryAsync<Blog>(query);
+            return blogs.ToList();
         }
 
-                public async Task<Blog> GetBlog(int id)
+        // ✅ Tek bir blogu getir (İçerikleriyle birlikte)
+        public async Task<Blog> GetBlog(int id)
+        {
+            const string query = @"
+                SELECT 
+                    b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr, b.Blog_image_base64,
+                    bc.id, bc.title_en, bc.title_tr, bc.content_en, bc.content_tr, bc.image_base64, bc.Blogid
+                FROM Blogs b
+                LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
+                WHERE b.Blogid = @id";
+
+            var blogDictionary = new Dictionary<int, Blog>();
+
+            var result = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
+                query,
+                (blog, content) =>
                 {
-                    const string query = @"
-                        SELECT 
-                            b.Blogid AS Blogid,
-                            b.BlogName AS BlogName,
-                            b.Blog_description AS Blog_description,
-                            b.BLOG_desc_tr AS BLOG_desc_tr,
-                            b.BLOG_Name_tr AS BLOG_Name_tr,
-                            bc.id AS id,
-                            bc.title_en AS title_en,
-                            bc.title_tr AS title_tr,
-                            bc.content_en AS content_en,
-                            bc.content_tr AS content_tr,
-                            bc.image_base64 AS image_base64,
-                            bc.Blogid AS Blogid
-                        FROM 
-                            Blogs b
-                        LEFT JOIN 
-                            Blog_Contents bc
-                        ON 
-                            b.Blogid = bc.Blogid
-                        WHERE
-                            b.Blogid = @id;
-                    ";
+                    if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
+                    {
+                        currentBlog = blog;
+                        currentBlog.blog_Contents = new List<Blog_Contents>();
+                        blogDictionary.Add(blog.Blogid, currentBlog);
+                    }
 
-                    var blogDictionary = new Dictionary<int, Blog>();
-                    var result = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
-                        query,
-                        (blog, content) =>
-                        {
-                            // Blog zaten dictionary'de mevcutsa ekleme
-                            if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
-                            {
-                                currentBlog = blog;
-                                currentBlog.blog_Contents = new List<Blog_Contents>();
-                                blogDictionary.Add(blog.Blogid, currentBlog);
-                            }
+                    if (content != null)
+                    {
+                        currentBlog.blog_Contents.Add(content);
+                    }
 
-                            // İçerik varsa ekleme
-                            if (content != null)
-                            {
-                                currentBlog.blog_Contents.Add(content);
-                            }
+                    return currentBlog;
+                },
+                new { id },
+                splitOn: "id" // İçerik tablosunun ID'si ile ayrım yapılıyor
+            );
 
-                            return currentBlog;
-                        },
-                        new { id }
-                    );
-
-                    return blogDictionary.Values.FirstOrDefault();
-                }
-
-
+            return blogDictionary.Values.FirstOrDefault();
+        }
 
         public async Task AddBlogWithContentsAsync(Blog blog)
         {
-            const string insertBlogQuery = @"
-                INSERT INTO Blogs (BlogName, Blog_image_base64,Blog_description)
-                VALUES (@BlogName, @Blog_image_base64 ,@Blog_description);
-                SELECT LAST_INSERT_ID();";
-
-            const string insertBlogContentQuery = @"
-                INSERT INTO Blog_Contents (title_en, title_tr, content_en, content_tr, image_base64, Blogid)
-                VALUES (@title_en, @title_tr, @content_en, @content_tr, @image_base64, @Blogid);";
-
-            using (var transaction = _connection.BeginTransaction())
+            using (var transaction = await _connection.BeginTransactionAsync())
             {
                 try
                 {
-                    var blogId = await _connection.ExecuteScalarAsync<int>(insertBlogQuery, new
-                    {
-                        blog.BlogName,
-                        blog.Blog_image_base64
-                    }, transaction);
+                    string insertBlogQuery = @"
+                        INSERT INTO Blogs (BlogName, Blog_image_base64, Blog_description, BLOG_Name_tr, BLOG_desc_tr)
+                        VALUES (@BlogName, @Blog_image_base64, @Blog_description, @BLOG_Name_tr, @BLOG_desc_tr);
+                        SELECT LAST_INSERT_ID();";
 
-                    foreach (var content in blog.blog_Contents)
-                    {
-                        content.Blogid = blogId; 
-
-                        await _connection.ExecuteAsync(insertBlogContentQuery, new
+                    var blogId = await _connection.ExecuteScalarAsync<int>(
+                        insertBlogQuery, 
+                        new
                         {
-                            content.title_en,
-                            content.title_tr,
-                            content.content_en,
-                            content.content_tr,
-                            content.image_base64,
-                            content.Blogid
-                        }, transaction);
+                            BlogName = blog.BlogName ?? "No Name",
+                            Blog_image_base64 = blog.Blog_image_base64 ?? "",
+                            Blog_description = blog.Blog_description ?? "No description",
+                            BLOG_Name_tr = blog.BLOG_Name_tr ?? blog.BlogName,
+                            BLOG_desc_tr = blog.BLOG_desc_tr ?? blog.Blog_description
+                        },
+                        transaction
+                    );
+
+
+                    if (blog.blog_Contents != null && blog.blog_Contents.Any())
+                    {
+                        string insertContentQuery = @"
+                            INSERT INTO Blog_Contents (Blogid, title_en, title_tr, content_en, content_tr, image_base64)
+                            VALUES (@Blogid, @title_en, @title_tr, @content_en, @content_tr, @image_base64);";
+
+                        foreach (var content in blog.blog_Contents)
+                        {
+                            await _connection.ExecuteAsync(insertContentQuery, new
+                            {
+                                Blogid = blogId,
+                                title_en = content.title_en ?? "",
+                                title_tr = content.title_tr ?? "",
+                                content_en = content.content_en ?? "",
+                                content_tr = content.content_tr ?? "",
+                                image_base64 = content.image_base64 ?? ""
+                            }, transaction);
+                        }
+
                     }
 
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
-                catch
+                catch (Exception ex)
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"Veritabanı hatası: {ex.Message}");
                     throw;
                 }
             }
         }
 
-
-        public bool DeleteBlog(int id){
-        var query = @"DELETE FROM Blogs WHERE Blogid = @id";
-        var affectedRows = _connection.Execute(query, new { id });
-        return affectedRows > 0;
-
-        }
-        
-
+        public async Task<bool> DeleteBlog(int id)
+        {
+            var query = @"DELETE FROM Blogs WHERE Blogid = @id";
+            var affectedRows = await _connection.ExecuteAsync(query, new { id });
+            return affectedRows > 0;
+        }      
 
     }
 
@@ -153,9 +140,9 @@ namespace Repositories
         public string BLOG_Name_tr { get; set; }
         public string BLOG_desc_tr { get; set; }
         public string Blog_description { get; set; }
-        public List<Blog_Contents> blog_Contents { get; set; }
-
+        public List<Blog_Contents> blog_Contents { get; set; } = new();
     }
+
     public class Blog_Contents
     {
         public int id { get; set; }

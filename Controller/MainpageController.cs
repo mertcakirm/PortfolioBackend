@@ -29,7 +29,7 @@ namespace Controllers
             }
         }
 
-        [HttpPut("update")]
+        [HttpPut("update/contents")]
         public IActionResult UpdateMainpage([FromBody] RequestMain request)
         {
             if (!ModelState.IsValid)
@@ -44,7 +44,6 @@ namespace Controllers
                     description_tr = request.description_tr,
                     header_en = request.header_en,
                     description_en = request.description_en,
-                    main_image_base64 = request.main_image_base64
                 };
 
                 var result = _homeRepository.UpdateHomeData(homePage);
@@ -88,7 +87,6 @@ namespace Controllers
                     description_tr = request.description_tr,
                     header_en = request.header_en,
                     description_en = request.description_en,
-                    main_image_base64 = request.main_image_base64
                 };
 
                 var result = _homeRepository.AddHomeData(homePage);
@@ -101,6 +99,29 @@ namespace Controllers
                 return StatusCode(500, $"Error adding data: {ex.Message}");
             }
         }
+
+        [HttpPut("update/image")]
+            public IActionResult UpdateImage([FromBody] Image_base64 request)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Invalid request body.");
+                }
+
+                try
+                {
+                    bool isUpdated = _homeRepository.ImageUpdate(request.main_image_base64);
+                    if (isUpdated)
+                    {
+                        return Ok("Image updated successfully.");
+                    }
+                    return BadRequest("Image update failed.");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Internal Server Error: {ex.Message}");
+                }
+            }
     }
 
     public class RequestMain
@@ -110,6 +131,10 @@ namespace Controllers
         public string description_tr { get; set; }
         public string header_en { get; set; }
         public string description_en { get; set; }
+    }
+
+    public class Image_base64{
         public string main_image_base64 { get; set; }
+
     }
 }

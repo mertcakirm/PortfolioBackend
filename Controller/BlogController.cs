@@ -87,21 +87,22 @@ namespace Controllers
             }
         }
 
-        [HttpDelete("delete/{id}")]
-        public IActionResult DeleteBlog(int id)
-        {
-            try
+            [HttpDelete("delete/{id}")]
+            public async Task<IActionResult> DeleteBlog(int id)
             {
-                var result = _blogRepository.DeleteBlog(id);
-                if (result)
-                    return Ok("Blog page data deleted successfully.");
-                return BadRequest("Failed to delete Blog page data.");
+                try
+                {
+                    var result = await _blogRepository.DeleteBlog(id);
+                    if (result)
+                        return Ok("Blog page data deleted successfully.");
+                    return BadRequest("Failed to delete Blog page data.");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Error deleting data: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error deleting data: {ex.Message}");
-            }
-        }
+
 
     }
 
