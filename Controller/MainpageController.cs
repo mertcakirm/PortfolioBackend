@@ -73,32 +73,6 @@ namespace Controllers
             }
         }
 
-        [HttpPost("add")]
-        public IActionResult AddHome([FromBody] RequestMain request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Invalid request body.");
-
-            try
-            {
-                var homePage = new HomePage
-                {
-                    header_tr = request.header_tr,
-                    description_tr = request.description_tr,
-                    header_en = request.header_en,
-                    description_en = request.description_en,
-                };
-
-                var result = _homeRepository.AddHomeData(homePage);
-                if (result)
-                    return Ok("Home page data added successfully.");
-                return BadRequest("Failed to add home page data.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error adding data: {ex.Message}");
-            }
-        }
 
         [HttpPut("update/image")]
             public IActionResult UpdateImage([FromBody] Image_base64 request)
