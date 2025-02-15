@@ -1810,11 +1810,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/mertcakir/visualStudioProject/ASPNetProject/ASPNetProject.csproj",
+      "projectUniqueName": "/Users/mertcakir/RiderProjects/PortfolioBackend/ASPNetProject.csproj",
       "projectName": "ASPNetProject",
-      "projectPath": "/Users/mertcakir/visualStudioProject/ASPNetProject/ASPNetProject.csproj",
+      "projectPath": "/Users/mertcakir/RiderProjects/PortfolioBackend/ASPNetProject.csproj",
       "packagesPath": "/Users/mertcakir/.nuget/packages/",
-      "outputPath": "/Users/mertcakir/visualStudioProject/ASPNetProject/obj/",
+      "outputPath": "/Users/mertcakir/RiderProjects/PortfolioBackend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/mertcakir/.nuget/NuGet/NuGet.Config"

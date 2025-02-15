@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gKDyJ3rxmkU=",
+  "dgSpecHash": "idXbJXenKkQ=",
   "success": true,
-  "projectFilePath": "/Users/mertcakir/visualStudioProject/ASPNetProject/ASPNetProject.csproj",
+  "projectFilePath": "/Users/mertcakir/RiderProjects/PortfolioBackend/ASPNetProject.csproj",
   "expectedPackageFiles": [
     "/Users/mertcakir/.nuget/packages/dapper/2.1.35/dapper.2.1.35.nupkg.sha512",
     "/Users/mertcakir/.nuget/packages/google.protobuf/3.21.9/google.protobuf.3.21.9.nupkg.sha512",
