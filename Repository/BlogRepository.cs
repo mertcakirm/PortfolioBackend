@@ -16,7 +16,6 @@ namespace Repositories
             _connection = connection;
         }
 
-        // ✅ Blog listesini getir
         public async Task<List<Blog>> GetBlogs()
         {
             const string query = @"
@@ -28,7 +27,6 @@ namespace Repositories
             return blogs.ToList();
         }
 
-        // ✅ Tek bir blogu getir (İçerikleriyle birlikte)
         public async Task<Blog> GetBlog(int id)
         {
             const string query = @"
@@ -60,7 +58,7 @@ namespace Repositories
                     return currentBlog;
                 },
                 new { id },
-                splitOn: "id" // İçerik tablosunun ID'si ile ayrım yapılıyor
+                splitOn: "id"
             );
 
             return blogDictionary.Values.FirstOrDefault();
@@ -94,13 +92,13 @@ namespace Repositories
                     if (blog.blog_Contents != null && blog.blog_Contents.Any())
                     {
                         string insertContentQuery = @"
-                            INSERT INTO Blog_Contents (Blogid, title_en, title_tr, content_en, content_tr, image_base64)
-                            VALUES (@Blogid, @title_en, @title_tr, @content_en, @content_tr, @image_base64);";
+                            INSERT INTO Blog_Contents (id, title_en, title_tr, content_en, content_tr, image_base64,Blogid)
+                            VALUES (@id, @title_en, @title_tr, @content_en, @content_tr, @image_base64,@Blogid);";
 
                         foreach (var content in blog.blog_Contents)
                         {
                             await _connection.ExecuteAsync(insertContentQuery, new
-                            {
+                            {   
                                 Blogid = blogId,
                                 title_en = content.title_en ?? "",
                                 title_tr = content.title_tr ?? "",

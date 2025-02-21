@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using System.Linq;
@@ -6,6 +7,7 @@ namespace Controllers
 {
     [ApiController]
     [Route("api/blogs")]
+    [Authorize]
     public class BlogController : Controller
 
     {
@@ -16,6 +18,7 @@ namespace Controllers
         }
 
         [HttpGet("get/all")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetBlogs()
         {
             try

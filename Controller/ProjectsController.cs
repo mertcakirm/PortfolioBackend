@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 
@@ -6,6 +7,8 @@ namespace Controllers
 {
     [ApiController]
     [Route("api/projects")]
+    [Authorize]
+
     public class ProjectsController : Controller
     {
         private readonly ProjectsRepository _projectsRepository;
@@ -16,6 +19,7 @@ namespace Controllers
         }
 
         [HttpGet("get/all")]
+        [AllowAnonymous]
         public IActionResult GetProjects()
         {
             try

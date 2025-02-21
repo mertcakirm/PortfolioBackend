@@ -1,11 +1,13 @@
 using Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
 {
     [ApiController]
     [Route("api/mainpage")]
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly MainpageRepository _homeRepository;
@@ -16,6 +18,7 @@ namespace Controllers
         }
 
         [HttpGet("get/all")]
+        [AllowAnonymous]
         public IActionResult GetHome()
         {
             try

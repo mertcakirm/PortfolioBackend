@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 
@@ -6,6 +7,8 @@ namespace Controllers
 {
     [ApiController]
     [Route("api/roles")]
+    [Authorize]
+
     public class RolesController : Controller
     {
         private readonly RoleRepository _rolesRepository;
@@ -16,6 +19,7 @@ namespace Controllers
         }
 
         [HttpGet("get/all")]
+        [AllowAnonymous]
         public IActionResult GetRoles()
         {
             try

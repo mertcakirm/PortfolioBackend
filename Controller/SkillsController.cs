@@ -2,11 +2,14 @@ using Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
 {
     [ApiController]
     [Route("api/skills")]
+    [Authorize]
+
     public class SkillController : Controller
     {
         private readonly SkillsRepository _skillsRepository;
@@ -17,6 +20,7 @@ namespace Controllers
         }
 
         [HttpGet("get/all")]
+        [AllowAnonymous]
         public IActionResult GetSkills()
         {
             try

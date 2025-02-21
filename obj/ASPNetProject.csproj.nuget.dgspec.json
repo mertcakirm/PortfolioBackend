@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/mertcakir/visualStudioProject/ASPNetProject/ASPNetProject.csproj": {}
+    "/Users/mertcakir/RiderProject/ASPNetProject/ASPNetProject.csproj": {}
   },
   "projects": {
-    "/Users/mertcakir/visualStudioProject/ASPNetProject/ASPNetProject.csproj": {
+    "/Users/mertcakir/RiderProject/ASPNetProject/ASPNetProject.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/mertcakir/visualStudioProject/ASPNetProject/ASPNetProject.csproj",
+        "projectUniqueName": "/Users/mertcakir/RiderProject/ASPNetProject/ASPNetProject.csproj",
         "projectName": "ASPNetProject",
-        "projectPath": "/Users/mertcakir/visualStudioProject/ASPNetProject/ASPNetProject.csproj",
+        "projectPath": "/Users/mertcakir/RiderProject/ASPNetProject/ASPNetProject.csproj",
         "packagesPath": "/Users/mertcakir/.nuget/packages/",
-        "outputPath": "/Users/mertcakir/visualStudioProject/ASPNetProject/obj/",
+        "outputPath": "/Users/mertcakir/RiderProject/ASPNetProject/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/mertcakir/.nuget/NuGet/NuGet.Config"
@@ -46,15 +46,19 @@
           "dependencies": {
             "Dapper": {
               "target": "Package",
-              "version": "[2.1.35, )"
+              "version": "[2.1.66, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[9.0.1, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[9.0.0, )"
+              "version": "[9.0.1, )"
             },
             "MySql.Data": {
               "target": "Package",
-              "version": "[8.0.33, )"
+              "version": "[9.2.0, )"
             }
           },
           "imports": [

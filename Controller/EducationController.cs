@@ -2,11 +2,14 @@ using Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
 {
     [ApiController]
     [Route("api/education")]
+    [Authorize]
+
     public class EducationController : Controller
     {
         private readonly EducationRepository _educationRepository;
@@ -17,6 +20,7 @@ namespace Controllers
         }
 
         [HttpGet("get/all")]
+        [AllowAnonymous]
         public IActionResult GetEducationsReq()
         {
             try

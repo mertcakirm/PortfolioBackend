@@ -47,7 +47,7 @@ namespace Repositories
         public bool AddRole(Role request)
         {
             const string query = @" 
-        INSERT INTO Roles (RoleName) 
+            INSERT INTO Roles (RoleName) 
             VALUES (@RoleName)";
 
 
@@ -57,7 +57,14 @@ namespace Repositories
             }
 
         }
-
+        public string GetRole(int roleId)
+        {
+            const string query="SELECT RoleName FROM Roles WHERE Roleid=@roleid";
+            
+            var result = _connection.ExecuteScalar(query,new { roleid = roleId });
+            
+            return result.ToString();
+        }
     }
 
 

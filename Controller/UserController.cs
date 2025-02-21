@@ -1,23 +1,31 @@
-using System.Security.Cryptography;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
-
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
 {
     [ApiController]
-    [Route("api/auth")]
+    [Route("api/auth")]    
+    [Authorize]
+
     public class AuthController : ControllerBase
     {
         private readonly UserRepository _userRepository;
+        private readonly IConfiguration _config;
 
-        public AuthController(UserRepository userRepository)
+        public AuthController(UserRepository userRepository, IConfiguration config)
         {
             _userRepository = userRepository;
+            _config = config;
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public IActionResult Login([FromBody] UserRequest loginRequest)
         {
             if (loginRequest == null || string.IsNullOrWhiteSpace(loginRequest.Username) || string.IsNullOrWhiteSpace(loginRequest.Password))
@@ -27,12 +35,33 @@ namespace Controllers
 
             var isValidUser = _userRepository.ValidateUser(loginRequest.Username, loginRequest.Password);
 
-            if (isValidUser)
+            if (!isValidUser)
             {
-                return Ok(new { message = "Login successful." });
-            }
-
             return Unauthorized(new { message = "Invalid username or password." });
+                
+            }
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]!);
+
+            var claims = new List<Claim>()
+            {
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(JwtRegisteredClaimNames.Sub, loginRequest.Username!),
+                new("Role", loginRequest.RoleId.ToString()),
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.Add(TimeSpan.FromDays(30)),
+                Issuer = _config["JwtSettings:Issuer"]!,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.WriteToken(token);
+            return Ok(jwt);
+
         }
 
         [HttpPost("add")]
