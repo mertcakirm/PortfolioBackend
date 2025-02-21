@@ -47,8 +47,8 @@ namespace Repositories
         public bool AddEducations(EducationQuery request)
         {
             const string query = @"
-                INSERT INTO Educations (EducationText) 
-                VALUES (@EducationText)";
+                INSERT INTO Educations (EducationText,Egitim) 
+                VALUES (@EducationText,@Egitim)";
 
             {
                 var affectedRows = _connection.Execute(query, request);
@@ -60,6 +60,7 @@ namespace Repositories
     {
         public int id { get; set; }
         public string EducationText { get; set; }
+        public string Egitim { get; set; }
     }
 
 }
