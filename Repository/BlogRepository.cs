@@ -30,12 +30,12 @@ namespace Repositories
         public async Task<Blog> GetBlog(int id)
         {
             const string query = @"
-                SELECT 
-                    b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr, b.Blog_image_base64,
-                    bc.id, bc.title_en, bc.title_tr, bc.content_en, bc.content_tr, bc.image_base64, bc.Blogid
-                FROM Blogs b
-                LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
-                WHERE b.Blogid = @id";
+        SELECT 
+            b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr,
+            bc.id, bc.title_en, bc.title_tr, bc.content_en, bc.content_tr, bc.image_base64
+        FROM Blogs b
+        LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
+        WHERE b.Blogid = @id";
 
             var blogDictionary = new Dictionary<int, Blog>();
 
@@ -61,8 +61,14 @@ namespace Repositories
                 splitOn: "id"
             );
 
-            return blogDictionary.Values.FirstOrDefault();
+            var blog = blogDictionary.Values.FirstOrDefault();
+            if (blog != null && blog.blog_Contents == null)
+            {
+                blog.blog_Contents = new List<Blog_Contents>();
+            }
+            return blog;
         }
+
 
         public async Task AddBlogWithContentsAsync(Blog blog)
         {
@@ -92,8 +98,8 @@ namespace Repositories
                     if (blog.blog_Contents != null && blog.blog_Contents.Any())
                     {
                         string insertContentQuery = @"
-                            INSERT INTO Blog_Contents (id, title_en, title_tr, content_en, content_tr, image_base64,Blogid)
-                            VALUES (@id, @title_en, @title_tr, @content_en, @content_tr, @image_base64,@Blogid);";
+                            INSERT INTO Blog_Contents (title_en, title_tr, content_en, content_tr, image_base64,Blogid)
+                            VALUES (@title_en, @title_tr, @content_en, @content_tr, @image_base64,@Blogid);";
 
                         foreach (var content in blog.blog_Contents)
                         {

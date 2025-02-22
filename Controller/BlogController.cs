@@ -32,7 +32,8 @@ namespace Controllers
         }
         
             [HttpGet("get/{id}")]
-            public async Task<IActionResult> GetBlog(int id)
+             [AllowAnonymous]
+  			public async Task<IActionResult> GetBlogSimple(int id)
             {
                 try
                 {
