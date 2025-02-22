@@ -78,7 +78,7 @@ namespace Controllers
                         content_tr = content.content_tr,
                         image_base64 = content.image_base64,
                         Blogid = content.Blogid
-                    }).ToList()
+                    }).ToList() ?? new List<Blog_Contents>()
                 };
 
                 await _blogRepository.AddBlogWithContentsAsync(blog);
@@ -113,7 +113,7 @@ namespace Controllers
     {
         public int Blogid { get; set; }
         public string BlogName { get; set; }
-        public string Blog_image_base64 { get; set; }
+        public string? Blog_image_base64 { get; set; }
         public string Blog_description { get; set; }
         public string BLOG_Name_tr { get; set; }
 
@@ -129,7 +129,7 @@ namespace Controllers
         public string title_tr { get; set; }
         public string content_en { get; set; }
         public string content_tr { get; set; }
-        public string image_base64 { get; set; }
+        public string? image_base64 { get; set; }
         public int Blogid { get; set; }
     }
 }

@@ -140,7 +140,7 @@ namespace Repositories
     {
         public int Blogid { get; set; }
         public string BlogName { get; set; }
-        public string Blog_image_base64 { get; set; }
+        public string? Blog_image_base64 { get; set; }
         public string BLOG_Name_tr { get; set; }
         public string BLOG_desc_tr { get; set; }
         public string Blog_description { get; set; }
@@ -154,7 +154,7 @@ namespace Repositories
         public string title_tr { get; set; }
         public string content_en { get; set; }
         public string content_tr { get; set; }
-        public string image_base64 { get; set; }
+        public string? image_base64 { get; set; }
         public int Blogid { get; set; }
     }
 }
