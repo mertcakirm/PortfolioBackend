@@ -75,7 +75,8 @@ namespace Controllers
             var user = new User
             {
                 Username = request.Username,
-                Password = Utils.HashPassword(request.Password)
+                Password = Utils.HashPassword(request.Password),
+                RoleId = request.RoleId
             };
 
             var isUserAdded = _userRepository.AddUser(user);

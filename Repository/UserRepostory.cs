@@ -32,8 +32,8 @@ namespace Repositories
         public bool AddUser(User request)
         {
             const string query = @"
-            INSERT INTO User (Username, Password)
-            VALUES (@Username, @Password)";
+            INSERT INTO User (Username, Password,Roleid)
+            VALUES (@Username, @Password, @RoleId)";
             var affectedRows = _connection.Execute(query, request);
             return affectedRows > 0;
         }
