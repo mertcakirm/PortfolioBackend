@@ -58,7 +58,6 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var blog = new Blog
@@ -105,8 +104,6 @@ namespace Controllers
                     return StatusCode(500, $"Error deleting data: {ex.Message}");
                 }
             }
-
-
     }
 
     public class BlogReq
@@ -116,9 +113,7 @@ namespace Controllers
         public string? Blog_image_base64 { get; set; }
         public string Blog_description { get; set; }
         public string BLOG_Name_tr { get; set; }
-
         public string BLOG_desc_tr { get; set; }
-
         public List<Blog_Contents> blog_Contents { get; set; }
 
     }

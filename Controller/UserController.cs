@@ -32,13 +32,10 @@ namespace Controllers
             {
                 return BadRequest(new { message = "Username and password are required." });
             }
-
             var isValidUser = _userRepository.ValidateUser(loginRequest.Username, loginRequest.Password);
-
             if (!isValidUser)
             {
             return Unauthorized(new { message = "Invalid username or password." });
-                
             }
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_config["JwtSettings:Key"]!);
@@ -49,7 +46,6 @@ namespace Controllers
                 new(JwtRegisteredClaimNames.Sub, loginRequest.Username!),
                 new("Role", loginRequest.RoleId.ToString()),
             };
-
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -57,11 +53,9 @@ namespace Controllers
                 Issuer = _config["JwtSettings:Issuer"]!,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
             };
-
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var jwt = tokenHandler.WriteToken(token);
             return Ok(jwt);
-
         }
 
         [HttpPost("add")]
@@ -71,21 +65,17 @@ namespace Controllers
             {
                 return BadRequest(new { message = "Username and password are required." });
             }
-
             var user = new User
             {
                 Username = request.Username,
                 Password = Utils.HashPassword(request.Password),
                 RoleId = request.RoleId
             };
-
             var isUserAdded = _userRepository.AddUser(user);
-
             if (isUserAdded)
             {
                 return Ok(new { message = "User added successfully." });
             }
-
             return StatusCode(500, new { message = "An error occurred while adding the user." });
         }
 
@@ -120,7 +110,6 @@ namespace Controllers
                 return StatusCode(500, $"Error retrieving data: {ex.Message}");
             }
         }
-
     }
 
     public class UserRequest

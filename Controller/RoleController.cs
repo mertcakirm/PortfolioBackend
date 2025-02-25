@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
@@ -38,7 +37,6 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var role = new Role
@@ -56,7 +54,6 @@ namespace Controllers
             {
                 return StatusCode(500, $"Error updating data: {ex.Message}");
             }
-
         }
 
 
@@ -82,16 +79,12 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var role = new Role
                 {
                     RoleName = request.RoleName,
-
-
                 };
-
                 var result = _rolesRepository.AddRole(role);
                 if (result)
                     return Ok("Role data added successfully.");
@@ -102,11 +95,7 @@ namespace Controllers
                 return StatusCode(500, $"Error adding data: {ex.Message}");
             }
         }
-
-
     }
-
-
 
     public class RoleRequest
     {

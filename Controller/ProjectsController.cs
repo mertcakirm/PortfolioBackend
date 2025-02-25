@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
@@ -38,7 +37,6 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var project = new Projects
@@ -61,7 +59,6 @@ namespace Controllers
             {
                 return StatusCode(500, $"Error updating data: {ex.Message}");
             }
-
         }
 
 

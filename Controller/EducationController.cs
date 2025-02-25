@@ -9,7 +9,6 @@ namespace Controllers
     [ApiController]
     [Route("api/education")]
     [Authorize]
-
     public class EducationController : Controller
     {
         private readonly EducationRepository _educationRepository;
@@ -39,7 +38,6 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var education = new EducationQuery
@@ -47,7 +45,6 @@ namespace Controllers
                     id = request.id,
                     EducationText = request.EducationText,
                 };
-
                 var result = _educationRepository.UpdateEducation(education);
                 if (result)
                     return Ok("Education page updated successfully.");
@@ -80,14 +77,12 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var education = new EducationQuery
                 {
                     EducationText = request.EducationText,
                 };
-
                 var result = _educationRepository.AddEducations(education);
                 if (result)
                     return Ok("Education page data added successfully.");

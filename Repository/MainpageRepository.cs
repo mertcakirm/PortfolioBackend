@@ -31,7 +31,6 @@ namespace Repositories
                 header_en = @header_en, 
                 description_en = @description_en
             WHERE id = @Id";
-
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;

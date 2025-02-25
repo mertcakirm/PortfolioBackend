@@ -37,7 +37,6 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var homePage = new HomePage
@@ -48,7 +47,6 @@ namespace Controllers
                     header_en = request.header_en,
                     description_en = request.description_en,
                 };
-
                 var result = _homeRepository.UpdateHomeData(homePage);
                 if (result)
                     return Ok("Home page updated successfully.");
@@ -84,7 +82,6 @@ namespace Controllers
                 {
                     return BadRequest("Invalid request body.");
                 }
-
                 try
                 {
                     bool isUpdated = _homeRepository.ImageUpdate(request.main_image_base64);

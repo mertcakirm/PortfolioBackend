@@ -39,7 +39,6 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var skill = new Skills
@@ -81,7 +80,6 @@ namespace Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
-
             try
             {
                 var skill = new Skills
@@ -89,7 +87,6 @@ namespace Controllers
                     SkillName = request.SkillName,
                     proficiency = request.proficiency,
                 };
-
                 var result = _skillsRepository.AddSkill(skill);
                 if (result)
                     return Ok("Skill page data added successfully.");

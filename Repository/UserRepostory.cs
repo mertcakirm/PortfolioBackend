@@ -9,7 +9,6 @@ namespace Repositories
     {
         private readonly MySqlConnection _connection;
 
-        // Constructor doğru şekilde tanımlandı
         public UserRepository(MySqlConnection connection)
         {
             _connection = connection;
@@ -18,7 +17,6 @@ namespace Repositories
         public bool ValidateUser(string Username, string Password)
         {
             var query = "SELECT COUNT(*) FROM User WHERE Username = @Username AND Password = @Password";
-
             using (var command = new MySqlCommand(query, _connection))
             {
                 command.Parameters.AddWithValue("@Username", Username);

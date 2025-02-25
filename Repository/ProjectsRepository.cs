@@ -56,8 +56,6 @@ namespace Repositories
             const string query = @" 
         INSERT INTO Projects (title_tr, description_tr, title_en, description_en, image_base64,href,Used_skills) 
             VALUES (@title_tr, @description_tr, @title_en, @description_en, @image_base64, @href, @Used_skills)";
-
-
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
@@ -67,10 +65,7 @@ namespace Repositories
                 Console.WriteLine(ex);
                 return false;
             }
-
-
         }
-
     }
 
 

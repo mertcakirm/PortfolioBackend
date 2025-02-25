@@ -62,5 +62,4 @@ namespace Repositories
         public string EducationText { get; set; }
         public string Egitim { get; set; }
     }
-
 }

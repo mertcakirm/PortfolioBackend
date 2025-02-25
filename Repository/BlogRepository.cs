@@ -36,9 +36,7 @@ namespace Repositories
         FROM Blogs b
         LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
         WHERE b.Blogid = @id";
-
             var blogDictionary = new Dictionary<int, Blog>();
-
             var result = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
                 query,
                 (blog, content) =>
@@ -54,7 +52,6 @@ namespace Repositories
                     {
                         currentBlog.blog_Contents.Add(content);
                     }
-
                     return currentBlog;
                 },
                 new { id },
@@ -100,7 +97,6 @@ namespace Repositories
                         string insertContentQuery = @"
                             INSERT INTO Blog_Contents (title_en, title_tr, content_en, content_tr, image_base64,Blogid)
                             VALUES (@title_en, @title_tr, @content_en, @content_tr, @image_base64,@Blogid);";
-
                         foreach (var content in blog.blog_Contents)
                         {
                             await _connection.ExecuteAsync(insertContentQuery, new
@@ -113,9 +109,7 @@ namespace Repositories
                                 image_base64 = content.image_base64 ?? ""
                             }, transaction);
                         }
-
                     }
-
                     await transaction.CommitAsync();
                 }
                 catch (Exception ex)
@@ -133,7 +127,6 @@ namespace Repositories
             var affectedRows = await _connection.ExecuteAsync(query, new { id });
             return affectedRows > 0;
         }      
-
     }
 
     public class Blog

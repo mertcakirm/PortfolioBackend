@@ -29,7 +29,6 @@ namespace Repositories
                 SET SkillName = @SkillName, 
                     proficiency = @proficiency
                 WHERE id = @id";
-
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
@@ -50,7 +49,6 @@ namespace Repositories
             const string query = @"
                 INSERT INTO Skills (SkillName, proficiency) 
                 VALUES (@SkillName, @proficiency)";
-
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;

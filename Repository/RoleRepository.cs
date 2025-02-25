@@ -49,13 +49,10 @@ namespace Repositories
             const string query = @" 
             INSERT INTO Roles (RoleName) 
             VALUES (@RoleName)";
-
-
             {
                 var affectedRows = _connection.Execute(query, request);
                 return affectedRows > 0;
             }
-
         }
         public string GetRole(int roleId)
         {
