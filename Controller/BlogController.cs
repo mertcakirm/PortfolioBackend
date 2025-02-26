@@ -17,12 +17,26 @@ namespace Controllers
         }
 
         [HttpGet("get/all")]
-        [AllowAnonymous]
         public async Task<IActionResult> GetBlogs()
         {
             try
             {
                 var blogs = await _blogRepository.GetBlogs();
+                return Ok(blogs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving data: {ex.Message}");
+            }
+        }
+        
+        [HttpGet("get/active")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetBlogsActiveCont()
+        {
+            try
+            {
+                var blogs = await _blogRepository.GetBlogsActive();
                 return Ok(blogs);
             }
             catch (Exception ex)
@@ -68,6 +82,8 @@ namespace Controllers
                     Blog_description = request.Blog_description,
                     BLOG_desc_tr = request.BLOG_desc_tr,
                     BLOG_Name_tr = request.BLOG_Name_tr,
+                    CreatedBy=request.CreatedBy,
+                    ShowBlog = request.ShowBlog,
                     blog_Contents = request.blog_Contents.Select(content => new Blog_Contents
                     {
                         id = content.id,
@@ -104,6 +120,40 @@ namespace Controllers
                     return StatusCode(500, $"Error deleting data: {ex.Message}");
                 }
             }
+            
+            [HttpPut("show/{id}")]
+            public async Task<IActionResult> ShowBlog(int id)
+            {
+                try
+                {
+                    var result = await _blogRepository.ShowVisibility(id);
+                    if (result)
+                        return Ok("Blog page data updated successfully.");
+                    return BadRequest("Failed to update Blog page data.");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Error updating data: {ex.Message}");
+                }
+            }
+            
+            [HttpPut("hidden/{id}")]
+            public async Task<IActionResult> HiddenBlog(int id)
+            {
+                try
+                {
+                    var result = await _blogRepository.HiddenVisibility(id);
+                    if (result)
+                        return Ok("Blog page data updated successfully.");
+                    return BadRequest("Failed to update Blog page data.");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Error updating data: {ex.Message}");
+                }
+            }
+            
+            
     }
 
     public class BlogReq
@@ -114,6 +164,9 @@ namespace Controllers
         public string Blog_description { get; set; }
         public string BLOG_Name_tr { get; set; }
         public string BLOG_desc_tr { get; set; }
+        public bool ShowBlog { get; set; }
+        public string CreatedBy { get; set; }
+    
         public List<Blog_Contents> blog_Contents { get; set; }
 
     }

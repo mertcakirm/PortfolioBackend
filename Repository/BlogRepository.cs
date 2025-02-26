@@ -20,8 +20,19 @@ namespace Repositories
         {
             const string query = @"
                 SELECT 
-                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr
+                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy
                 FROM Blogs";
+
+            var blogs = await _connection.QueryAsync<Blog>(query);
+            return blogs.ToList();
+        }
+        
+        public async Task<List<Blog>> GetBlogsActive()
+        {
+            const string query = @"
+                SELECT 
+                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy
+                FROM Blogs WHERE ShowBlog = 1";
 
             var blogs = await _connection.QueryAsync<Blog>(query);
             return blogs.ToList();
@@ -31,7 +42,7 @@ namespace Repositories
         {
             const string query = @"
         SELECT 
-            b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr,
+            b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr,b.CreatedBy,
             bc.id, bc.title_en, bc.title_tr, bc.content_en, bc.content_tr, bc.image_base64
         FROM Blogs b
         LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
@@ -74,8 +85,8 @@ namespace Repositories
                 try
                 {
                     string insertBlogQuery = @"
-                        INSERT INTO Blogs (BlogName, Blog_image_base64, Blog_description, BLOG_Name_tr, BLOG_desc_tr)
-                        VALUES (@BlogName, @Blog_image_base64, @Blog_description, @BLOG_Name_tr, @BLOG_desc_tr);
+                        INSERT INTO Blogs (BlogName, Blog_image_base64, Blog_description, BLOG_Name_tr, BLOG_desc_tr,ShowBlog,CreatedBy)
+                        VALUES (@BlogName, @Blog_image_base64, @Blog_description, @BLOG_Name_tr, @BLOG_desc_tr,@ShowBlog,@CreatedBy);
                         SELECT LAST_INSERT_ID();";
 
                     var blogId = await _connection.ExecuteScalarAsync<int>(
@@ -86,7 +97,9 @@ namespace Repositories
                             Blog_image_base64 = blog.Blog_image_base64 ?? "",
                             Blog_description = blog.Blog_description ?? "No description",
                             BLOG_Name_tr = blog.BLOG_Name_tr ?? blog.BlogName,
-                            BLOG_desc_tr = blog.BLOG_desc_tr ?? blog.Blog_description
+                            BLOG_desc_tr = blog.BLOG_desc_tr ?? blog.Blog_description,
+                            ShowBlog=blog.ShowBlog ? true : false,
+                            CreatedBy=blog.CreatedBy ?? "Belirtilmemiş"
                         },
                         transaction
                     );
@@ -126,7 +139,21 @@ namespace Repositories
             var query = @"DELETE FROM Blogs WHERE Blogid = @id";
             var affectedRows = await _connection.ExecuteAsync(query, new { id });
             return affectedRows > 0;
-        }      
+        }
+
+        public async Task<bool> ShowVisibility(int id)
+        {
+            var query = @"UPDATE Blogs SET ShowBlog = 1 WHERE Blogid = @id";
+            var affectedRows = await _connection.ExecuteAsync(query, new { id });
+            return affectedRows > 0;
+        }
+        
+        public async Task<bool> HiddenVisibility(int id)
+        {
+            var query = @"UPDATE Blogs SET ShowBlog = 0 WHERE Blogid = @id";
+            var affectedRows = await _connection.ExecuteAsync(query, new { id });
+            return affectedRows > 0;
+        }
     }
 
     public class Blog
@@ -137,6 +164,8 @@ namespace Repositories
         public string BLOG_Name_tr { get; set; }
         public string BLOG_desc_tr { get; set; }
         public string Blog_description { get; set; }
+        public string CreatedBy { get; set; }
+        public bool ShowBlog { get; set; }
         public List<Blog_Contents> blog_Contents { get; set; } = new();
     }
 
