@@ -16,7 +16,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddOpenApi();
 
-// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", policy =>

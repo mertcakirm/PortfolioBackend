@@ -42,7 +42,7 @@ namespace Repositories
         {
             const string query = @"
         SELECT 
-            b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr,b.CreatedBy,
+            b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr,b.CreatedBy,b.CreatedDate,
             bc.id, bc.title_en, bc.title_tr, bc.content_en, bc.content_tr, bc.image_base64
         FROM Blogs b
         LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
@@ -165,6 +165,7 @@ namespace Repositories
         public string BLOG_desc_tr { get; set; }
         public string Blog_description { get; set; }
         public string CreatedBy { get; set; }
+        public DateTime? CreatedDate { get; set; }
         public bool ShowBlog { get; set; }
         public List<Blog_Contents> blog_Contents { get; set; } = new();
     }

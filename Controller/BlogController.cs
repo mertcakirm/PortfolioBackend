@@ -164,6 +164,7 @@ namespace Controllers
         public string Blog_description { get; set; }
         public string BLOG_Name_tr { get; set; }
         public string BLOG_desc_tr { get; set; }
+        public DateTime? CreatedDate { get; set; }
         public bool ShowBlog { get; set; }
         public string CreatedBy { get; set; }
     
