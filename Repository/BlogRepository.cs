@@ -20,7 +20,7 @@ namespace Repositories
         {
             const string query = @"
                 SELECT 
-                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy
+                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy,CreatedDate
                 FROM Blogs";
 
             var blogs = await _connection.QueryAsync<Blog>(query);
@@ -31,7 +31,7 @@ namespace Repositories
         {
             const string query = @"
                 SELECT 
-                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy
+                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy,CreatedDate
                 FROM Blogs WHERE ShowBlog = 1";
 
             var blogs = await _connection.QueryAsync<Blog>(query);
