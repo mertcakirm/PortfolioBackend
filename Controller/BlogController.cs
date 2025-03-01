@@ -16,7 +16,7 @@ namespace Controllers
             _blogRepository = blogRepository;
         }
 
-        [HttpGet("get/all")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetBlogs()
         {
             try
@@ -30,7 +30,7 @@ namespace Controllers
             }
         }
         
-        [HttpGet("get/active")]
+        [HttpGet("public")]
         [AllowAnonymous]
         public async Task<IActionResult> GetBlogsActiveCont()
         {
@@ -151,9 +151,7 @@ namespace Controllers
                 {
                     return StatusCode(500, $"Error updating data: {ex.Message}");
                 }
-            }
-            
-            
+            }  
     }
 
     public class BlogReq
