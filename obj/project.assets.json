@@ -1957,11 +1957,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/mertcakir/RiderProject/ASPNetProject/ASPNetProject.csproj",
+      "projectUniqueName": "/Users/mertcakir/RiderProjects/PortfolioBackend/ASPNetProject.csproj",
       "projectName": "ASPNetProject",
-      "projectPath": "/Users/mertcakir/RiderProject/ASPNetProject/ASPNetProject.csproj",
+      "projectPath": "/Users/mertcakir/RiderProjects/PortfolioBackend/ASPNetProject.csproj",
       "packagesPath": "/Users/mertcakir/.nuget/packages/",
-      "outputPath": "/Users/mertcakir/RiderProject/ASPNetProject/obj/",
+      "outputPath": "/Users/mertcakir/RiderProjects/PortfolioBackend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/mertcakir/.nuget/NuGet/NuGet.Config"
@@ -1986,9 +1986,9 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "all"
+        "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net9.0": {
@@ -2030,7 +2030,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.100/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -28,7 +28,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped(sp =>
 {
-    var con = new MySqlConnection(builder.Configuration["ConnectionStrings:MySql"]);
+    var con = new MySqlConnection(builder.Configuration["ConnectionStrings:DefaultConnection"]);
     con.Open();
     return con;
 });
