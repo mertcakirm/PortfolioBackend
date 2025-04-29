@@ -1,3 +1,5 @@
+using Cors.DBO;
+using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
@@ -33,13 +35,13 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateProjects([FromBody] ProjectRequest request)
+        public IActionResult UpdateProjects([FromBody] ProjectsDTO.ProjectRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var project = new Projects
+                var project = new ProjectsDBO.Projects()
                 {
                     id = request.id,
                     title_tr = request.title_tr,
@@ -80,14 +82,14 @@ namespace Controllers
 
 
         [HttpPost("add")]
-        public IActionResult AddProject([FromBody] ProjectRequest request)
+        public IActionResult AddProject([FromBody] ProjectsDTO.ProjectRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
 
             try
             {
-                var newProject = new Projects
+                var newProject = new ProjectsDBO.Projects()
                 {
                     title_tr = request.title_tr,
                     description_tr = request.description_tr,
@@ -114,15 +116,5 @@ namespace Controllers
 
 
 
-    public class ProjectRequest
-    {
-        public int id { get; set; }
-        public string title_tr { get; set; }
-        public string description_tr { get; set; }
-        public string title_en { get; set; }
-        public string description_en { get; set; }
-        public string image_base64 { get; set; }
-        public string href { get; set; }
-        public string Used_skills { get; set; }
-    }
+
 }

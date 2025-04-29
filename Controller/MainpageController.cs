@@ -1,6 +1,8 @@
 using Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Cors.DBO;
+using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
@@ -33,13 +35,13 @@ namespace Controllers
         }
 
         [HttpPut("update/contents")]
-        public IActionResult UpdateMainpage([FromBody] RequestMain request)
+        public IActionResult UpdateMainpage([FromBody] MainPageDTO.RequestMain request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var homePage = new HomePage
+                var homePage = new MainPageDBO.HomePage
                 {
                     Id = request.Id,
                     header_tr = request.header_tr,
@@ -76,7 +78,7 @@ namespace Controllers
 
 
         [HttpPut("update/image")]
-            public IActionResult UpdateImage([FromBody] Image_base64 request)
+            public IActionResult UpdateImage([FromBody] MainPageDTO.Image_base64 request)
             {
                 if (!ModelState.IsValid)
                 {
@@ -98,17 +100,4 @@ namespace Controllers
             }
     }
 
-    public class RequestMain
-    {
-        public int Id { get; set; }
-        public string header_tr { get; set; }
-        public string description_tr { get; set; }
-        public string header_en { get; set; }
-        public string description_en { get; set; }
-    }
-
-    public class Image_base64{
-        public string main_image_base64 { get; set; }
-
-    }
 }

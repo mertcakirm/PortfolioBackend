@@ -1,4 +1,5 @@
 
+using Cors.DBO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -13,16 +14,16 @@ namespace Repositories
         }
 
 
-        public List<Projects> GetProjects()
+        public List<ProjectsDBO.Projects> GetProjects()
         {
             const string query = "SELECT * FROM Projects";
             {
-                return _connection.Query<Projects>(query).ToList();
+                return _connection.Query<ProjectsDBO.Projects>(query).ToList();
             }
         }
 
 
-        public bool UpdateProject(Projects request)
+        public bool UpdateProject(ProjectsDBO.Projects request)
         {
             const string query = @"
         UPDATE Projects
@@ -50,7 +51,7 @@ namespace Repositories
             }
         }
 
-        public bool AddProjects(Projects request)
+        public bool AddProjects(ProjectsDBO.Projects request)
         {
             try{
             const string query = @" 
@@ -70,16 +71,6 @@ namespace Repositories
 
 
 
-    public class Projects
-    {
-        public int id { get; set; }
-        public string title_tr { get; set; }
-        public string description_tr { get; set; }
-        public string title_en { get; set; }
-        public string description_en { get; set; }
-        public string image_base64 { get; set; }
-        public string href { get; set; }
-        public string Used_skills { get; set; }
-    }
+
 
 }

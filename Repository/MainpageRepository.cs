@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Cors.DBO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -14,15 +15,15 @@ namespace Repositories
             _connection = connection;
         }
 
-        public List<HomePage> GetHomeData()
+        public List<MainPageDBO.HomePage> GetHomeData()
         {
             const string query = "SELECT * FROM Homepage";
             {
-                return _connection.Query<HomePage>(query).ToList();
+                return _connection.Query<MainPageDBO.HomePage>(query).ToList();
             }
         }
 
-        public bool UpdateHomeData(HomePage request)
+        public bool UpdateHomeData(MainPageDBO.HomePage request)
         {
             const string query = @"
             UPDATE Homepage 
@@ -55,14 +56,6 @@ namespace Repositories
     }
 
     }
-    public class HomePage
-    {
-        public int Id { get; set; }
-        public string header_tr { get; set; }
-        public string description_tr { get; set; }
-        public string header_en { get; set; }
-        public string description_en { get; set; }
-        public string main_image_base64 { get; set; }
-    }
+
 
 }
