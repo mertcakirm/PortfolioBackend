@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Controllers;
+using Cors.DBO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -15,15 +16,15 @@ namespace Repositories
             _connection = connection;
         }
 
-        public List<EducationQuery> GetEducations()
+        public List<EducationDBO.EducationQuery> GetEducations()
         {
             const string query = "SELECT * FROM Educations";
             {
-                return _connection.Query<EducationQuery>(query).ToList();
+                return _connection.Query<EducationDBO.EducationQuery>(query).ToList();
             }
         }
 
-        public bool UpdateEducation(EducationQuery request)
+        public bool UpdateEducation(EducationDBO.EducationQuery request)
         {
             const string query = @"
                 UPDATE Educations 
@@ -44,7 +45,7 @@ namespace Repositories
             }
         }
 
-        public bool AddEducations(EducationQuery request)
+        public bool AddEducations(EducationDBO.EducationQuery request)
         {
             const string query = @"
                 INSERT INTO Educations (EducationText,Egitim) 
@@ -56,10 +57,5 @@ namespace Repositories
             }
         }
     }
-    public class EducationQuery
-    {
-        public int id { get; set; }
-        public string EducationText { get; set; }
-        public string Egitim { get; set; }
-    }
+
 }

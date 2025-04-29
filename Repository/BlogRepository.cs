@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cors.DBO;
 
 namespace Repositories
 {
@@ -16,29 +17,29 @@ namespace Repositories
             _connection = connection;
         }
 
-        public async Task<List<Blog>> GetBlogs()
+        public async Task<List<BlogDBO.Blog>> GetBlogs()
         {
             const string query = @"
                 SELECT 
                     Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy,CreatedDate
                 FROM Blogs";
 
-            var blogs = await _connection.QueryAsync<Blog>(query);
+            var blogs = await _connection.QueryAsync<BlogDBO.Blog>(query);
             return blogs.ToList();
         }
         
-        public async Task<List<Blog>> GetBlogsActive()
+        public async Task<List<BlogDBO.Blog>> GetBlogsActive()
         {
             const string query = @"
                 SELECT 
                     Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy,CreatedDate
                 FROM Blogs WHERE ShowBlog = 1";
 
-            var blogs = await _connection.QueryAsync<Blog>(query);
+            var blogs = await _connection.QueryAsync<BlogDBO.Blog>(query);
             return blogs.ToList();
         }
 
-        public async Task<Blog> GetBlog(int id)
+        public async Task<BlogDBO.Blog> GetBlog(int id)
         {
             const string query = @"
         SELECT 
@@ -47,15 +48,15 @@ namespace Repositories
         FROM Blogs b
         LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
         WHERE b.Blogid = @id";
-            var blogDictionary = new Dictionary<int, Blog>();
-            var result = await _connection.QueryAsync<Blog, Blog_Contents, Blog>(
+            var blogDictionary = new Dictionary<int, BlogDBO.Blog>();
+            var result = await _connection.QueryAsync<BlogDBO.Blog, BlogDBO.Blog_Contents, BlogDBO.Blog>(
                 query,
                 (blog, content) =>
                 {
                     if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
                     {
                         currentBlog = blog;
-                        currentBlog.blog_Contents = new List<Blog_Contents>();
+                        currentBlog.blog_Contents = new List<BlogDBO.Blog_Contents>();
                         blogDictionary.Add(blog.Blogid, currentBlog);
                     }
 
@@ -72,13 +73,13 @@ namespace Repositories
             var blog = blogDictionary.Values.FirstOrDefault();
             if (blog != null && blog.blog_Contents == null)
             {
-                blog.blog_Contents = new List<Blog_Contents>();
+                blog.blog_Contents = new List<BlogDBO.Blog_Contents>();
             }
             return blog;
         }
 
 
-        public async Task AddBlogWithContentsAsync(Blog blog)
+        public async Task AddBlogWithContentsAsync(BlogDBO.Blog blog)
         {
             using (var transaction = await _connection.BeginTransactionAsync())
             {
@@ -156,28 +157,5 @@ namespace Repositories
         }
     }
 
-    public class Blog
-    {
-        public int Blogid { get; set; }
-        public string BlogName { get; set; }
-        public string? Blog_image_base64 { get; set; }
-        public string BLOG_Name_tr { get; set; }
-        public string BLOG_desc_tr { get; set; }
-        public string Blog_description { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public bool ShowBlog { get; set; }
-        public List<Blog_Contents> blog_Contents { get; set; } = new();
-    }
-
-    public class Blog_Contents
-    {
-        public int id { get; set; }
-        public string title_en { get; set; }
-        public string title_tr { get; set; }
-        public string content_en { get; set; }
-        public string content_tr { get; set; }
-        public string? image_base64 { get; set; }
-        public int Blogid { get; set; }
-    }
+  
 }

@@ -1,3 +1,5 @@
+using Cors.DBO;
+using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
@@ -67,43 +69,45 @@ namespace Controllers
             }
 
 
-        [HttpPost("add")]
-        public async Task<IActionResult> AddBlog([FromBody] Blog request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Invalid request body.");
-            try
+            [HttpPost("add")]
+            public async Task<IActionResult> AddBlog([FromBody] BlogDTO.BlogReq request)
             {
-                var blog = new Blog
-                {
-                    Blogid = request.Blogid,
-                    BlogName = request.BlogName,
-                    Blog_image_base64 = request.Blog_image_base64,
-                    Blog_description = request.Blog_description,
-                    BLOG_desc_tr = request.BLOG_desc_tr,
-                    BLOG_Name_tr = request.BLOG_Name_tr,
-                    CreatedBy=request.CreatedBy,
-                    ShowBlog = request.ShowBlog,
-                    blog_Contents = request.blog_Contents.Select(content => new Blog_Contents
-                    {
-                        id = content.id,
-                        title_en = content.title_en,
-                        title_tr = content.title_tr,
-                        content_en = content.content_en,
-                        content_tr = content.content_tr,
-                        image_base64 = content.image_base64,
-                        Blogid = content.Blogid
-                    }).ToList() ?? new List<Blog_Contents>()
-                };
+                if (!ModelState.IsValid)
+                    return BadRequest("Invalid request body.");
 
-                await _blogRepository.AddBlogWithContentsAsync(blog);
-                return Ok("Blog and its content added successfully.");
+                try
+                {
+                    var blogEntity = new BlogDBO.Blog
+                    {
+                        Blogid = request.Blogid,
+                        BlogName = request.BlogName,
+                        Blog_image_base64 = request.Blog_image_base64,
+                        Blog_description = request.Blog_description,
+                        BLOG_Name_tr = request.BLOG_Name_tr,
+                        BLOG_desc_tr = request.BLOG_desc_tr,
+                        CreatedDate = request.CreatedDate ?? DateTime.Now,
+                        CreatedBy = request.CreatedBy,
+                        ShowBlog = request.ShowBlog,
+                        blog_Contents = request.blog_Contents?.Select(content => new BlogDBO.Blog_Contents
+                        {
+                            id = content.id,
+                            title_en = content.title_en,
+                            title_tr = content.title_tr,
+                            content_en = content.content_en,
+                            content_tr = content.content_tr,
+                            image_base64 = content.image_base64,
+                            Blogid = content.Blogid
+                        }).ToList() ?? new List<BlogDBO.Blog_Contents>()
+                    };
+
+                    await _blogRepository.AddBlogWithContentsAsync(blogEntity);
+                    return Ok("Blog and its content added successfully.");
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, $"Error adding data: {ex.Message}");
+                }
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error adding data: {ex.Message}");
-            }
-        }
 
             [HttpDelete("delete/{id}")]
             public async Task<IActionResult> DeleteBlog(int id)
@@ -154,29 +158,5 @@ namespace Controllers
             }  
     }
 
-    public class BlogReq
-    {
-        public int Blogid { get; set; }
-        public string BlogName { get; set; }
-        public string? Blog_image_base64 { get; set; }
-        public string Blog_description { get; set; }
-        public string BLOG_Name_tr { get; set; }
-        public string BLOG_desc_tr { get; set; }
-        public DateTime? CreatedDate { get; set; }
-        public bool ShowBlog { get; set; }
-        public string CreatedBy { get; set; }
-    
-        public List<Blog_Contents> blog_Contents { get; set; }
 
-    }
-    public class Blog_ContentsReq
-    {
-        public int id { get; set; }
-        public string title_en { get; set; }
-        public string title_tr { get; set; }
-        public string content_en { get; set; }
-        public string content_tr { get; set; }
-        public string? image_base64 { get; set; }
-        public int Blogid { get; set; }
-    }
 }

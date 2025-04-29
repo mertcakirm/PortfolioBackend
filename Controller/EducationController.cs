@@ -2,6 +2,8 @@ using Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using System;
+using Cors.DBO;
+using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
@@ -34,13 +36,13 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateEducationReq([FromBody] Education request)
+        public IActionResult UpdateEducationReq([FromBody] EducationDTO.Education request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var education = new EducationQuery
+                var education = new EducationDBO.EducationQuery()
                 {
                     id = request.id,
                     EducationText = request.EducationText,
@@ -73,13 +75,13 @@ namespace Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddEducation([FromBody] Education request)
+        public IActionResult AddEducation([FromBody] EducationDTO.Education request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var education = new EducationQuery
+                var education = new EducationDBO.EducationQuery()
                 {
                     EducationText = request.EducationText,
                 };
@@ -95,11 +97,5 @@ namespace Controllers
         }
     }
 
-    public class Education
-    {
-        public int id { get; set; }        
-        public string EducationText { get; set; }
-        public string Egitim { get; set; }
 
-    }
 }

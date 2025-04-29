@@ -14,7 +14,6 @@ builder.Services.AddAuthorization();
 
 
 
-builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
@@ -45,10 +44,7 @@ var app = builder.Build();
 
 app.UseCors("AllowSpecificOrigin");
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+
 
 app.UseHttpsRedirection();
 
