@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 using System.Security.Claims;
+using Cors.DBO;
+using Cors.DTO;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 
@@ -26,7 +28,7 @@ namespace Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public IActionResult Login([FromBody] UserRequest loginRequest)
+        public IActionResult Login([FromBody] UserDTO.UserRequest loginRequest)
         {
             if (loginRequest == null || string.IsNullOrWhiteSpace(loginRequest.Username) || string.IsNullOrWhiteSpace(loginRequest.Password))
             {
@@ -59,13 +61,13 @@ namespace Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddUser([FromBody] UserRequest request)
+        public IActionResult AddUser([FromBody] UserDTO.UserRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
             {
                 return BadRequest(new { message = "Username and password are required." });
             }
-            var user = new User
+            var user = new UserDBO.User
             {
                 Username = request.Username,
                 Password = Utils.HashPassword(request.Password),
@@ -112,10 +114,5 @@ namespace Controllers
         }
     }
 
-    public class UserRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public int RoleId { get; set; }
-    }
+
 }

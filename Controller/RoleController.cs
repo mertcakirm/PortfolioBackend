@@ -1,3 +1,5 @@
+using Cors.DBO;
+using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
@@ -33,13 +35,13 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateRole([FromBody] RoleRequest request)
+        public IActionResult UpdateRole([FromBody] RoleDTO.RoleRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var role = new Role
+                var role = new RoleDBO.Role
                 {
                     Roleid = request.Roleid,
                     RoleName = request.RoleName,
@@ -75,13 +77,13 @@ namespace Controllers
 
 
         [HttpPost("add")]
-        public IActionResult AddRole([FromBody] RoleRequest request)
+        public IActionResult AddRole([FromBody] RoleDTO.RoleRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var role = new Role
+                var role = new RoleDBO.Role
                 {
                     RoleName = request.RoleName,
                 };
@@ -97,10 +99,5 @@ namespace Controllers
         }
     }
 
-    public class RoleRequest
-    {
-        public int Roleid { get; set; }
-        public string RoleName { get; set; }
 
-    }
 }

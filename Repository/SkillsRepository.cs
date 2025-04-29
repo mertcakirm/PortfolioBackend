@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Cors.DBO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -14,15 +15,15 @@ namespace Repositories
             _connection = connection;
         }
 
-        public List<Skills> GetSkills()
+        public List<SkillsDBO.Skills> GetSkills()
         {
             const string query = "SELECT * FROM Skills";
             {
-                return _connection.Query<Skills>(query).ToList();
+                return _connection.Query<SkillsDBO.Skills>(query).ToList();
             }
         }
 
-        public bool UpdateSkill(Skills request)
+        public bool UpdateSkill(SkillsDBO.Skills request)
         {
             const string query = @"
                 UPDATE Skills 
@@ -44,7 +45,7 @@ namespace Repositories
             }
         }
 
-        public bool AddSkill(Skills request)
+        public bool AddSkill(SkillsDBO.Skills request)
         {
             const string query = @"
                 INSERT INTO Skills (SkillName, proficiency) 
@@ -55,11 +56,6 @@ namespace Repositories
             }
         }
     }
-    public class Skills
-    {
-        public int id { get; set; }
-        public string SkillName { get; set; }
-        public string proficiency { get; set; }
-    }
+
 
 }

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using Cors.DBO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -27,7 +28,7 @@ namespace Repositories
             }
         }
 
-        public bool AddUser(User request)
+        public bool AddUser(UserDBO.User request)
         {
             const string query = @"
             INSERT INTO User (Username, Password,Roleid)
@@ -48,20 +49,14 @@ namespace Repositories
 
 
 
-        public List<User> GetUsers()
+        public List<UserDBO.User> GetUsers()
         {
             const string query = "SELECT Uid,Username,Roleid FROM User";
             {
-                return _connection.Query<User>(query).ToList();
+                return _connection.Query<UserDBO.User>(query).ToList();
             }
         }
     }
 
-    public class User
-    {
-        public int Uid { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public int RoleId { get; set; }
-    }
+
 }

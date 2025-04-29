@@ -2,6 +2,8 @@ using Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using System;
+using Cors.DBO;
+using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Controllers
@@ -35,13 +37,13 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateSkill([FromBody] RequestSkill request)
+        public IActionResult UpdateSkill([FromBody] SkillsDTO.RequestSkill request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var skill = new Skills
+                var skill = new SkillsDBO.Skills()
                 {
                     id = request.id,
                     SkillName = request.SkillName,
@@ -76,13 +78,13 @@ namespace Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddSkill([FromBody] RequestSkill request)
+        public IActionResult AddSkill([FromBody] SkillsDTO.RequestSkill request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
             try
             {
-                var skill = new Skills
+                var skill = new SkillsDBO.Skills()
                 {
                     SkillName = request.SkillName,
                     proficiency = request.proficiency,
@@ -99,10 +101,5 @@ namespace Controllers
         }
     }
 
-    public class RequestSkill
-    {
-        public int id { get; set; }
-        public string SkillName { get; set; }
-        public string proficiency { get; set; }
-    }
+
 }

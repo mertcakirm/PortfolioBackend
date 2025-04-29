@@ -1,4 +1,5 @@
 
+using Cors.DBO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -13,16 +14,16 @@ namespace Repositories
         }
 
 
-        public List<Role> GetRoles()
+        public List<RoleDBO.Role> GetRoles()
         {
             const string query = "SELECT * FROM Roles";
             {
-                return _connection.Query<Role>(query).ToList();
+                return _connection.Query<RoleDBO.Role>(query).ToList();
             }
         }
 
 
-        public bool UpdateRole(Role request)
+        public bool UpdateRole(RoleDBO.Role request)
         {
             const string query = @"
         UPDATE Roles
@@ -44,7 +45,7 @@ namespace Repositories
             }
         }
 
-        public bool AddRole(Role request)
+        public bool AddRole(RoleDBO.Role request)
         {
             const string query = @" 
             INSERT INTO Roles (RoleName) 
@@ -66,10 +67,5 @@ namespace Repositories
 
 
 
-    public class Role
-    {
-        public int Roleid { get; set; }
-        public string RoleName { get; set; }
-    }
 
 }
