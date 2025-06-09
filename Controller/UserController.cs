@@ -100,12 +100,12 @@ namespace Controllers
 
 
         [HttpGet("get/all")]
-        public IActionResult GetUsers()
+        public IActionResult GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var Users = _userRepository.GetUsers();
-                return Ok(Users);
+                var result = _userRepository.GetUsersPaged(page, pageSize);
+                return Ok(result);
             }
             catch (Exception ex)
             {

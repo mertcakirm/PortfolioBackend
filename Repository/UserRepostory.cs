@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Cors.DBO;
+using Cors.DTO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -49,12 +50,25 @@ namespace Repositories
 
 
 
-        public List<UserDBO.User> GetUsers()
+        public PagedResult<UserDBO.User> GetUsersPaged(int page, int pageSize)
         {
-            const string query = "SELECT Uid,Username,Roleid FROM User";
+            var offset = (page - 1) * pageSize;
+
+            var dataQuery = @"SELECT Uid, Username, Roleid FROM User ORDER BY Uid DESC LIMIT @PageSize OFFSET @Offset;";
+            var countQuery = @"SELECT COUNT(*) FROM User;";
+
+            var users = _connection.Query<UserDBO.User>(dataQuery, new { PageSize = pageSize, Offset = offset }).ToList();
+            var totalCount = _connection.ExecuteScalar<int>(countQuery);
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            return new PagedResult<UserDBO.User>
             {
-                return _connection.Query<UserDBO.User>(query).ToList();
-            }
+                Items = users,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
         }
     }
 

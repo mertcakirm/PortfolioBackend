@@ -18,13 +18,14 @@ namespace Controllers
             _blogRepository = blogRepository;
         }
 
-        [HttpGet("all")]
-        public async Task<IActionResult> GetBlogs()
+        [HttpGet("paged")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPagedBlogs([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var blogs = await _blogRepository.GetBlogs();
-                return Ok(blogs);
+                var pagedResult = await _blogRepository.GetBlogsPagedAsync(page, pageSize);
+                return Ok(pagedResult);
             }
             catch (Exception ex)
             {
@@ -34,12 +35,12 @@ namespace Controllers
         
         [HttpGet("public")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetBlogsActiveCont()
+        public async Task<IActionResult> GetBlogsActiveCont([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var blogs = await _blogRepository.GetBlogsActive();
-                return Ok(blogs);
+                var result = await _blogRepository.GetBlogsActivePagedAsync(page, pageSize);
+                return Ok(result);
             }
             catch (Exception ex)
             {

@@ -1,11 +1,12 @@
 {
   "Version": 1,
-  "Hash": "MjtwHX1v+WwhqzkL3bqbmDs3X3rpmafmroCCOE1Zkwc=",
+  "Hash": "t/0tuMDiy4LvTOEOpDqQ4jrQem5hHvanHW5t9sGyL4c=",
   "Source": "ASPNetProject",
   "BasePath": "_content/ASPNetProject",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }

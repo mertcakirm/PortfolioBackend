@@ -59,3 +59,9 @@
 /Users/mertcakir/RiderProjects/PortfolioBackend/obj/Debug/net8.0/ASPNetProject.pdb
 /Users/mertcakir/RiderProjects/PortfolioBackend/obj/Debug/net8.0/ASPNetProject.genruntimeconfig.cache
 /Users/mertcakir/RiderProjects/PortfolioBackend/obj/Debug/net8.0/ref/ASPNetProject.dll
+/Users/mertcakir/RiderProjects/PortfolioBackend/bin/Debug/net8.0/Swashbuckle.AspNetCore.Swagger.dll
+/Users/mertcakir/RiderProjects/PortfolioBackend/bin/Debug/net8.0/Swashbuckle.AspNetCore.SwaggerGen.dll
+/Users/mertcakir/RiderProjects/PortfolioBackend/bin/Debug/net8.0/Swashbuckle.AspNetCore.SwaggerUI.dll
+/Users/mertcakir/RiderProjects/PortfolioBackend/bin/Debug/net8.0/ASPNetProject.staticwebassets.endpoints.json
+/Users/mertcakir/RiderProjects/PortfolioBackend/obj/Debug/net8.0/staticwebassets.build.endpoints.json
+/Users/mertcakir/RiderProjects/PortfolioBackend/obj/Debug/net8.0/staticwebassets/msbuild.ASPNetProject.Microsoft.AspNetCore.StaticWebAssetEndpoints.props

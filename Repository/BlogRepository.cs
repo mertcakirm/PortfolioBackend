@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Cors.DBO;
+using Cors.DTO;
 
 namespace Repositories
 {
@@ -17,27 +18,64 @@ namespace Repositories
             _connection = connection;
         }
 
-        public async Task<List<BlogDBO.Blog>> GetBlogs()
+        public async Task<PagedResult<BlogDBO.Blog>> GetBlogsPagedAsync(int page, int pageSize)
         {
-            const string query = @"
-                SELECT 
-                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy,CreatedDate
-                FROM Blogs";
+            var offset = (page - 1) * pageSize;
 
-            var blogs = await _connection.QueryAsync<BlogDBO.Blog>(query);
-            return blogs.ToList();
+            var dataQuery = @"
+        SELECT 
+            Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr, ShowBlog, CreatedBy, CreatedDate
+        FROM Blogs
+        ORDER BY CreatedDate DESC
+        LIMIT @PageSize OFFSET @Offset;
+    ";
+
+            var countQuery = @"SELECT COUNT(*) FROM Blogs;";
+
+            var blogs = await _connection.QueryAsync<BlogDBO.Blog>(dataQuery, new { PageSize = pageSize, Offset = offset });
+            var totalCount = await _connection.ExecuteScalarAsync<int>(countQuery);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            return new PagedResult<BlogDBO.Blog>
+            {
+                Items = blogs.ToList(),
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
         }
         
-        public async Task<List<BlogDBO.Blog>> GetBlogsActive()
-        {
-            const string query = @"
-                SELECT 
-                    Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr,ShowBlog,CreatedBy,CreatedDate
-                FROM Blogs WHERE ShowBlog = 1";
-
-            var blogs = await _connection.QueryAsync<BlogDBO.Blog>(query);
-            return blogs.ToList();
-        }
+       public async Task<PagedResult<BlogDBO.Blog>> GetBlogsActivePagedAsync(int page, int pageSize)
+       {
+           var offset = (page - 1) * pageSize;
+       
+           var dataQuery = @"
+               SELECT 
+                   Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr, ShowBlog, CreatedBy, CreatedDate
+               FROM Blogs
+               WHERE ShowBlog = 1
+               ORDER BY CreatedDate DESC
+               LIMIT @PageSize OFFSET @Offset;
+           ";
+       
+           var countQuery = @"SELECT COUNT(*) FROM Blogs WHERE ShowBlog = 1;";
+       
+           var blogs = await _connection.QueryAsync<BlogDBO.Blog>(dataQuery, new { PageSize = pageSize, Offset = offset });
+           var totalCount = await _connection.ExecuteScalarAsync<int>(countQuery);
+           
+           var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+       
+           return new PagedResult<BlogDBO.Blog>
+           {
+               Items = blogs.ToList(),
+               TotalCount = totalCount,
+               TotalPages = totalPages,    
+               CurrentPage = page,
+               PageSize = pageSize
+           };
+       }
 
         public async Task<BlogDBO.Blog> GetBlog(int id)
         {
