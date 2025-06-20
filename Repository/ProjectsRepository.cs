@@ -1,4 +1,5 @@
 using Cors.DBO;
+using Cors.DTO;
 using Dapper;
 using MySql.Data.MySqlClient;
 
@@ -12,12 +13,32 @@ namespace Repositories
             _connection = connection;
         }
 
-        public List<ProjectsDBO.Projects> GetProjects()
+        public PagedResult<ProjectsDBO.Projects> GetProjectsPaged(int page, int pageSize)
         {
-            const string query = "SELECT * FROM Projects WHERE isDeleted = false";
-            return _connection.Query<ProjectsDBO.Projects>(query).ToList();
-        }
+            var offset = (page - 1) * pageSize;
 
+            const string dataQuery = @"
+        SELECT * FROM Projects
+        WHERE isDeleted = false
+        ORDER BY id DESC
+        LIMIT @PageSize OFFSET @Offset;
+    ";
+
+            const string countQuery = @"SELECT COUNT(*) FROM Projects WHERE isDeleted = false;";
+
+            var projects = _connection.Query<ProjectsDBO.Projects>(dataQuery, new { PageSize = pageSize, Offset = offset }).ToList();
+            var totalCount = _connection.ExecuteScalar<int>(countQuery);
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            return new PagedResult<ProjectsDBO.Projects>
+            {
+                Items = projects,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
+        }
         public bool UpdateProject(ProjectsDBO.Projects request)
         {
             const string query = @"

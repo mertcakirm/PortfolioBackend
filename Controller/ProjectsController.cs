@@ -19,18 +19,18 @@ namespace Controllers
             _projectsRepository = projectsRepository;
         }
 
-        [HttpGet("get/all")]
+        [HttpGet("get/paged")]
         [AllowAnonymous]
-        public IActionResult GetProjects()
+        public IActionResult GetPagedProjects([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var projects = _projectsRepository.GetProjects();
-                return Ok(projects);
+                var pagedResult = _projectsRepository.GetProjectsPaged(page, pageSize);
+                return Ok(pagedResult);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error retrieving data: {ex.Message}");
+                return StatusCode(500, $"Error retrieving paged project data: {ex.Message}");
             }
         }
 
