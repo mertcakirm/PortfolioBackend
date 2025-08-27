@@ -6,7 +6,7 @@ public class SkillsDBO
     {
         public int id { get; set; }
         public string SkillName { get; set; }
-        public string proficiency { get; set; }
+        public int proficiency { get; set; }
         public bool? IsDeleted { get; set; }
     }    
 

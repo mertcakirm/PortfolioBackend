@@ -29,10 +29,10 @@ namespace ASPNetProject.Repositories;
                                    .ToListAsync();
 
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            Console.WriteLine("test : ",blogs);
 
             // Mapper ile dönüşüm
             var blogsDBO = _mapper.Map<List<BlogDBO.Blog>>(blogs);
-
             return new PagedResult<BlogDBO.Blog>
             {
                 Items = blogsDBO,

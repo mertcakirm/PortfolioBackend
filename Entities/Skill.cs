@@ -9,7 +9,7 @@ public partial class Skill
 
     public string SkillName { get; set; } = null!;
 
-    public string Proficiency { get; set; }
+    public int Proficiency { get; set; }
 
     public bool? IsDeleted { get; set; }
 }
