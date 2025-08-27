@@ -1,197 +1,156 @@
-using Dapper;
-using MySql.Data.MySqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Cors.DBO;
 using Cors.DTO;
+using ASPNetProject.data;
+using AutoMapper; // <- IMapper için
+using Microsoft.EntityFrameworkCore.Metadata;
+using ASPNetProject.Entities;
 
-namespace Repositories
-{
+namespace ASPNetProject.Repositories;
+
     public class BlogRepository
     {
-        private readonly MySqlConnection _connection;
+        private readonly AppDbContext _context;
+        private readonly IMapper _mapper; // <- MappingProfile yerine IMapper
 
-        public BlogRepository(MySqlConnection connection)
+        public BlogRepository(AppDbContext context, IMapper mapper)
         {
-            _connection = connection;
+            _context = context;
+            _mapper = mapper;
         }
-            public async Task<PagedResult<BlogDBO.Blog>> GetBlogsPagedAsync(int page, int pageSize)
+        // Sayfalama ile tüm bloglar
+        public async Task<PagedResult<BlogDBO.Blog>> GetBlogsPagedAsync(int page, int pageSize)
+        {
+            var query = _context.Blogs.OrderByDescending(b => b.CreatedDate);
+
+            var totalCount = await query.CountAsync();
+            var blogs = await query.Skip((page - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // Mapper ile dönüşüm
+            var blogsDBO = _mapper.Map<List<BlogDBO.Blog>>(blogs);
+
+            return new PagedResult<BlogDBO.Blog>
             {
-                var offset = (page - 1) * pageSize;
+                Items = blogsDBO,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
+        }
 
-                var dataQuery = @"
-                    SELECT Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr, ShowBlog, CreatedBy, CreatedDate
-                    FROM Blogs
-                    WHERE isDeleted = false
-                    ORDER BY CreatedDate DESC
-                    LIMIT @PageSize OFFSET @Offset;
-                ";
+        // Aktif bloglar
+        public async Task<PagedResult<BlogDBO.Blog>> GetBlogsActivePagedAsync(int page, int pageSize)
+        {
+            var query = _context.Blogs
+                                .Where(b => b.ShowBlog == true)
+                                .OrderByDescending(b => b.CreatedDate)
+                                .Include(b => b.BlogContents);
 
-                var countQuery = @"SELECT COUNT(*) FROM Blogs WHERE isDeleted = false;";
+            var totalCount = await query.CountAsync();
+            var blogsEntity = await query.Skip((page - 1) * pageSize)
+                                         .Take(pageSize)
+                                         .ToListAsync();
 
-                var blogs = await _connection.QueryAsync<BlogDBO.Blog>(dataQuery, new { PageSize = pageSize, Offset = offset });
-                var totalCount = await _connection.ExecuteScalarAsync<int>(countQuery);
+            // Mapper ile Entity → DBO dönüşümü
+            var blogsDBO = _mapper.Map<List<BlogDBO.Blog>>(blogsEntity);
 
-                var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
-                return new PagedResult<BlogDBO.Blog>
+            return new PagedResult<BlogDBO.Blog>
+            {
+                Items = blogsDBO,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                CurrentPage = page,
+                PageSize = pageSize
+            };
+        }
+
+        // Tek blog + içerikleri
+        public async Task<BlogDBO.Blog?> GetBlog(int id)
+        {
+            var blogEntity = await _context.Blogs
+                                           .Include(b => b.BlogContents)
+                                           .FirstOrDefaultAsync(b => b.Blogid == id);
+
+            if (blogEntity == null) return null;
+
+            return _mapper.Map<BlogDBO.Blog>(blogEntity);
+        }
+
+        // Blog + içerik ekleme
+        public async Task AddBlogWithContentsAsync(BlogDBO.Blog blog)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                blog.CreatedDate = DateTime.Now;
+
+                var blogEntity = _mapper.Map<Blog>(blog); // DBO → Entity dönüşümü
+
+                await _context.Blogs.AddAsync(blogEntity);
+                await _context.SaveChangesAsync();
+
+                if (blog.blog_Contents != null && blog.blog_Contents.Any())
                 {
-                    Items = blogs.ToList(),
-                    TotalCount = totalCount,
-                    TotalPages = totalPages,
-                    CurrentPage = page,
-                    PageSize = pageSize
-                };
-            }
-
-            public async Task<PagedResult<BlogDBO.Blog>> GetBlogsActivePagedAsync(int page, int pageSize)
-            {
-                var offset = (page - 1) * pageSize;
-
-                var dataQuery = @"
-                    SELECT Blogid, BlogName, Blog_image_base64, Blog_description, BLOG_desc_tr, BLOG_Name_tr, ShowBlog, CreatedBy, CreatedDate
-                    FROM Blogs
-                    WHERE ShowBlog = 1 AND isDeleted = false
-                    ORDER BY CreatedDate DESC
-                    LIMIT @PageSize OFFSET @Offset;
-                ";
-
-                var countQuery = @"SELECT COUNT(*) FROM Blogs WHERE ShowBlog = 1 AND isDeleted = false;";
-
-                var blogs = await _connection.QueryAsync<BlogDBO.Blog>(dataQuery, new { PageSize = pageSize, Offset = offset });
-                var totalCount = await _connection.ExecuteScalarAsync<int>(countQuery);
-
-                var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-                return new PagedResult<BlogDBO.Blog>
-                {
-                    Items = blogs.ToList(),
-                    TotalCount = totalCount,
-                    TotalPages = totalPages,
-                    CurrentPage = page,
-                    PageSize = pageSize
-                };
-            }
-
-            public async Task<BlogDBO.Blog> GetBlog(int id)
-            {
-                const string query = @"
-                    SELECT 
-                        b.Blogid, b.BlogName, b.Blog_description, b.BLOG_desc_tr, b.BLOG_Name_tr,b.CreatedBy,b.CreatedDate,
-                        bc.id, bc.title_en, bc.title_tr, bc.content_en, bc.content_tr, bc.image_base64
-                    FROM Blogs b
-                    LEFT JOIN Blog_Contents bc ON b.Blogid = bc.Blogid
-                    WHERE b.Blogid = @id AND b.isDeleted = false";
-
-                var blogDictionary = new Dictionary<int, BlogDBO.Blog>();
-                var result = await _connection.QueryAsync<BlogDBO.Blog, BlogDBO.Blog_Contents, BlogDBO.Blog>(
-                    query,
-                    (blog, content) =>
+                    foreach (var content in blog.blog_Contents)
                     {
-                        if (!blogDictionary.TryGetValue(blog.Blogid, out var currentBlog))
-                        {
-                            currentBlog = blog;
-                            currentBlog.blog_Contents = new List<BlogDBO.Blog_Contents>();
-                            blogDictionary.Add(blog.Blogid, currentBlog);
-                        }
-
-                        if (content != null)
-                        {
-                            currentBlog.blog_Contents.Add(content);
-                        }
-                        return currentBlog;
-                    },
-                    new { id },
-                    splitOn: "id"
-                );
-
-                var blog = blogDictionary.Values.FirstOrDefault();
-                if (blog != null && blog.blog_Contents == null)
-                {
-                    blog.blog_Contents = new List<BlogDBO.Blog_Contents>();
-                }
-                return blog;
-            }
-
-            public async Task AddBlogWithContentsAsync(BlogDBO.Blog blog)
-            {
-                using (var transaction = await _connection.BeginTransactionAsync())
-                {
-                    try
-                    {
-                        string insertBlogQuery = @"
-                            INSERT INTO Blogs (BlogName, Blog_image_base64, Blog_description, BLOG_Name_tr, BLOG_desc_tr, ShowBlog, CreatedBy, isDeleted)
-                            VALUES (@BlogName, @Blog_image_base64, @Blog_description, @BLOG_Name_tr, @BLOG_desc_tr, @ShowBlog, @CreatedBy, false);
-                            SELECT LAST_INSERT_ID();";
-
-                        var blogId = await _connection.ExecuteScalarAsync<int>(
-                            insertBlogQuery,
-                            new
-                            {
-                                BlogName = blog.BlogName ?? "No Name",
-                                Blog_image_base64 = blog.Blog_image_base64 ?? "",
-                                Blog_description = blog.Blog_description ?? "No description",
-                                BLOG_Name_tr = blog.BLOG_Name_tr ?? blog.BlogName,
-                                BLOG_desc_tr = blog.BLOG_desc_tr ?? blog.Blog_description,
-                                ShowBlog = blog.ShowBlog,
-                                CreatedBy = blog.CreatedBy ?? "Belirtilmemiş"
-                            },
-                            transaction
-                        );
-
-                        if (blog.blog_Contents != null && blog.blog_Contents.Any())
-                        {
-                            string insertContentQuery = @"
-                                INSERT INTO Blog_Contents (title_en, title_tr, content_en, content_tr, image_base64, Blogid)
-                                VALUES (@title_en, @title_tr, @content_en, @content_tr, @image_base64, @Blogid);";
-                            foreach (var content in blog.blog_Contents)
-                            {
-                                await _connection.ExecuteAsync(insertContentQuery, new
-                                {
-                                    Blogid = blogId,
-                                    title_en = content.title_en ?? "",
-                                    title_tr = content.title_tr ?? "",
-                                    content_en = content.content_en ?? "",
-                                    content_tr = content.content_tr ?? "",
-                                    image_base64 = content.image_base64 ?? ""
-                                }, transaction);
-                            }
-                        }
-
-                        await transaction.CommitAsync();
+                        var contentEntity = _mapper.Map<BlogContent>(content);
+                        contentEntity.Blogid = blogEntity.Blogid;
+                        await _context.BlogContents.AddAsync(contentEntity);
                     }
-                    catch (Exception ex)
-                    {
-                        await transaction.RollbackAsync();
-                        Console.WriteLine($"Veritabanı hatası: {ex.Message}");
-                        throw;
-                    }
+
+                    await _context.SaveChangesAsync();
                 }
-            }
 
-            public async Task<bool> DeleteBlog(int id)
-            {
-                var query = @"UPDATE Blogs SET isDeleted = true WHERE Blogid = @id";
-                var affectedRows = await _connection.ExecuteAsync(query, new { id });
-                return affectedRows > 0;
+                await transaction.CommitAsync();
             }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
 
-            public async Task<bool> ShowVisibility(int id)
-            {
-                var query = @"UPDATE Blogs SET ShowBlog = 1 WHERE Blogid = @id AND isDeleted = false";
-                var affectedRows = await _connection.ExecuteAsync(query, new { id });
-                return affectedRows > 0;
-            }
+        // Blog silme
+        public async Task<bool> DeleteBlog(int id)
+        {
+            var blog = await _context.Blogs
+                                     .Include(b => b.BlogContents)
+                                     .FirstOrDefaultAsync(b => b.Blogid == id);
+            if (blog == null) return false;
 
-            public async Task<bool> HiddenVisibility(int id)
-            {
-                var query = @"UPDATE Blogs SET ShowBlog = 0 WHERE Blogid = @id AND isDeleted = false";
-                var affectedRows = await _connection.ExecuteAsync(query, new { id });
-                return affectedRows > 0;
-            }
+            _context.BlogContents.RemoveRange(blog.BlogContents);
+            _context.Blogs.Remove(blog);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Göster
+        public async Task<bool> ShowVisibility(int id)
+        {
+            var blog = await _context.Blogs.FirstOrDefaultAsync(b => b.Blogid == id);
+            if (blog == null) return false;
+
+            blog.ShowBlog = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Gizle
+        public async Task<bool> HiddenVisibility(int id)
+        {
+            var blog = await _context.Blogs.FirstOrDefaultAsync(b => b.Blogid == id);
+            if (blog == null) return false;
+
+            blog.ShowBlog = false;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
-
-  
-}

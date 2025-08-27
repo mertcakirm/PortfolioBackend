@@ -1,61 +1,68 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using ASPNetProject.data;
 using Cors.DBO;
-using Dapper;
-using MySql.Data.MySqlClient;
+using ASPNetProject.Entities;
 
-namespace Repositories
-{
+namespace ASPNetProject.Repositories;
+
     public class MainpageRepository
     {
-        private readonly MySqlConnection _connection;
+        private readonly AppDbContext _context;
 
-        public MainpageRepository(MySqlConnection connection)
+        public MainpageRepository(AppDbContext context)
         {
-            _connection = connection;
+            _context = context;
         }
 
-        public List<MainPageDBO.HomePage> GetHomeData()
+        public async Task<List<MainPageDBO.HomePage>> GetHomeDataAsync()
         {
-            const string query = "SELECT * FROM Homepage";
-            {
-                return _connection.Query<MainPageDBO.HomePage>(query).ToList();
-            }
+            return await _context.Homepages
+                                 .Select(h => new MainPageDBO.HomePage
+                                 {
+                                     Id = h.Id,
+                                     header_tr = h.HeaderTr,
+                                     description_tr = h.DescriptionTr,
+                                     header_en = h.HeaderEn,
+                                     description_en = h.DescriptionEn,
+                                     main_image_base64 = h.MainImageBase64
+                                 })
+                                 .ToListAsync();
         }
 
-        public bool UpdateHomeData(MainPageDBO.HomePage request)
+        public async Task<bool> UpdateHomeDataAsync(MainPageDBO.HomePage request)
         {
-            const string query = @"
-            UPDATE Homepage 
-            SET header_tr = @header_tr, 
-                description_tr = @description_tr, 
-                header_en = @header_en, 
-                description_en = @description_en
-            WHERE id = @Id";
-            {
-                var affectedRows = _connection.Execute(query, request);
-                return affectedRows > 0;
-            }
+            var entity = await _context.Homepages.FirstOrDefaultAsync(h => h.Id == request.Id);
+            if (entity == null) return false;
+
+            entity.HeaderTr = request.header_tr;
+            entity.DescriptionTr = request.description_tr;
+            entity.HeaderEn = request.header_en;
+            entity.DescriptionEn = request.description_en;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool DeleteHomeData(int id)
+        public async Task<bool> DeleteHomeDataAsync(int id)
         {
-            const string query = "DELETE FROM Homepage WHERE Id = @Id";
-            {
-                var affectedRows = _connection.Execute(query, new { Id = id });
-                return affectedRows > 0;
-            }
+            var entity = await _context.Homepages.FirstOrDefaultAsync(h => h.Id == id);
+            if (entity == null) return false;
+
+            _context.Homepages.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
+        public async Task<bool> ImageUpdateAsync(string base64_image)
+        {
+            var entity = await _context.Homepages.FirstOrDefaultAsync();
+            if (entity == null) return false;
 
-    public bool ImageUpdate(string base64_image)
-    {
-        const string query = @"UPDATE Homepage SET main_image_base64 = @base64_image";
-        var affectedRows = _connection.Execute(query, new { base64_image });
-        return affectedRows > 0;
+            entity.MainImageBase64 = base64_image;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
-
-    }
-
-
-}

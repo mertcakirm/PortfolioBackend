@@ -1,12 +1,13 @@
-using Repositories;
+using ASPNetProject.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using Cors.DBO;
 using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
-namespace Controllers
-{
+namespace ASPNetProject.Controllers;
+
     [ApiController]
     [Route("api/mainpage")]
     [Authorize]
@@ -21,11 +22,11 @@ namespace Controllers
 
         [HttpGet("get/all")]
         [AllowAnonymous]
-        public IActionResult GetHome()
+        public async Task<IActionResult> GetHome()
         {
             try
             {
-                var homeData = _homeRepository.GetHomeData();
+                var homeData = await _homeRepository.GetHomeDataAsync();
                 return Ok(homeData);
             }
             catch (Exception ex)
@@ -35,10 +36,11 @@ namespace Controllers
         }
 
         [HttpPut("update/contents")]
-        public IActionResult UpdateMainpage([FromBody] MainPageDTO.RequestMain request)
+        public async Task<IActionResult> UpdateMainpage([FromBody] MainPageDTO.RequestMain request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
+
             try
             {
                 var homePage = new MainPageDBO.HomePage
@@ -49,9 +51,12 @@ namespace Controllers
                     header_en = request.header_en,
                     description_en = request.description_en,
                 };
-                var result = _homeRepository.UpdateHomeData(homePage);
+
+                var result = await _homeRepository.UpdateHomeDataAsync(homePage);
+
                 if (result)
                     return Ok("Home page updated successfully.");
+
                 return BadRequest("Failed to update home page.");
             }
             catch (Exception ex)
@@ -61,13 +66,15 @@ namespace Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public IActionResult DeleteHome(int id)
+        public async Task<IActionResult> DeleteHome(int id)
         {
             try
             {
-                var result = _homeRepository.DeleteHomeData(id);
+                var result = await _homeRepository.DeleteHomeDataAsync(id);
+
                 if (result)
                     return Ok("Home page data deleted successfully.");
+
                 return BadRequest("Failed to delete home page data.");
             }
             catch (Exception ex)
@@ -76,28 +83,24 @@ namespace Controllers
             }
         }
 
-
         [HttpPut("update/image")]
-            public IActionResult UpdateImage([FromBody] MainPageDTO.Image_base64 request)
-            {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest("Invalid request body.");
-                }
-                try
-                {
-                    bool isUpdated = _homeRepository.ImageUpdate(request.main_image_base64);
-                    if (isUpdated)
-                    {
-                        return Ok("Image updated successfully.");
-                    }
-                    return BadRequest("Image update failed.");
-                }
-                catch (Exception ex)
-                {
-                    return StatusCode(500, $"Internal Server Error: {ex.Message}");
-                }
-            }
-    }
+        public async Task<IActionResult> UpdateImage([FromBody] MainPageDTO.Image_base64 request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid request body.");
 
-}
+            try
+            {
+                var isUpdated = await _homeRepository.ImageUpdateAsync(request.main_image_base64);
+
+                if (isUpdated)
+                    return Ok("Image updated successfully.");
+
+                return BadRequest("Image update failed.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
+        }
+    }

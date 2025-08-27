@@ -1,13 +1,14 @@
-using Repositories;
+using ASPNetProject.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Repositories;
 using System;
 using Cors.DBO;
 using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
-namespace Controllers
-{
+namespace ASPNetProject.Controllers;
+
+
     [ApiController]
     [Route("api/skills")]
     [Authorize]
@@ -23,11 +24,11 @@ namespace Controllers
 
         [HttpGet("get/all")]
         [AllowAnonymous]
-        public IActionResult GetSkills()
+        public async Task<IActionResult> GetSkills()
         {
             try
             {
-                var SkillData = _skillsRepository.GetSkills();
+                var SkillData = await _skillsRepository.GetSkillsAsync();
                 return Ok(SkillData);
             }
             catch (Exception ex)
@@ -37,7 +38,7 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateSkill([FromBody] SkillsDTO.RequestSkill request)
+        public async Task<IActionResult> UpdateSkill([FromBody] SkillsDTO.RequestSkill request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
@@ -50,7 +51,7 @@ namespace Controllers
                     proficiency = request.proficiency,
                 };
 
-                var result = _skillsRepository.UpdateSkill(skill);
+                var result = await _skillsRepository.UpdateSkillAsync(skill);
                 if (result)
                     return Ok("Skill page updated successfully.");
                 return BadRequest("Failed to update Skill page.");
@@ -62,11 +63,11 @@ namespace Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public IActionResult DeleteSkill(int id)
+        public async Task<IActionResult> DeleteSkill(int id)
         {
             try
             {
-                var result = _skillsRepository.DeleteSkill(id);
+                var result =await _skillsRepository.DeleteSkillAsync(id);
                 if (result)
                     return Ok("Skill page data deleted successfully.");
                 return BadRequest("Failed to delete Skill page data.");
@@ -78,7 +79,7 @@ namespace Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddSkill([FromBody] SkillsDTO.RequestSkill request)
+        public async Task<IActionResult> AddSkill([FromBody] SkillsDTO.RequestSkill request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
@@ -89,7 +90,7 @@ namespace Controllers
                     SkillName = request.SkillName,
                     proficiency = request.proficiency,
                 };
-                var result = _skillsRepository.AddSkill(skill);
+                var result = await _skillsRepository.AddSkillAsync(skill);
                 if (result)
                     return Ok("Skill page data added successfully.");
                 return BadRequest("Failed to add Skill page data.");
@@ -100,6 +101,3 @@ namespace Controllers
             }
         }
     }
-
-
-}

@@ -2,10 +2,12 @@ using Cors.DBO;
 using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Repositories;
+using ASPNetProject.Repositories;
+using System.Threading.Tasks;
 
-namespace Controllers
-{
+namespace ASPNetProject.Controllers;
+
+
     [ApiController]
     [Route("api/roles")]
     [Authorize]
@@ -21,11 +23,11 @@ namespace Controllers
 
         [HttpGet("get/all")]
         [AllowAnonymous]
-        public IActionResult GetRoles()
+        public async Task<IActionResult> GetRoles()
         {
             try
             {
-                var roles = _rolesRepository.GetRoles();
+                var roles = await _rolesRepository.GetRolesAsync();
                 return Ok(roles);
             }
             catch (Exception ex)
@@ -35,7 +37,7 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateRole([FromBody] RoleDTO.RoleRequest request)
+        public async Task<IActionResult> UpdateRole([FromBody] RoleDTO.RoleRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
@@ -47,7 +49,7 @@ namespace Controllers
                     RoleName = request.RoleName,
 
                 };
-                var result = _rolesRepository.UpdateRole(role);
+                var result = await _rolesRepository.UpdateRoleAsync(role);
                 if (result)
                     return Ok("Role updated successfully.");
                 return BadRequest("Failed to update Role");
@@ -60,11 +62,11 @@ namespace Controllers
 
 
         [HttpDelete("delete/{id}")]
-        public IActionResult DeleteRole(int id)
+        public async Task<IActionResult> DeleteRole(int id)
         {
             try
             {
-                var result = _rolesRepository.DeleteRole(id);
+                var result = await _rolesRepository.DeleteRoleAsync(id);
                 if (result)
                     return Ok("Role data deleted successfully.");
                 return BadRequest("Failed to delete Role data.");
@@ -77,7 +79,7 @@ namespace Controllers
 
 
         [HttpPost("add")]
-        public IActionResult AddRole([FromBody] RoleDTO.RoleRequest request)
+        public async Task<IActionResult> AddRole([FromBody] RoleDTO.RoleRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
@@ -87,7 +89,7 @@ namespace Controllers
                 {
                     RoleName = request.RoleName,
                 };
-                var result = _rolesRepository.AddRole(role);
+                var result = await _rolesRepository.AddRoleAsync(role);
                 if (result)
                     return Ok("Role data added successfully.");
                 return BadRequest("Failed to add Role data.");
@@ -98,6 +100,3 @@ namespace Controllers
             }
         }
     }
-
-
-}

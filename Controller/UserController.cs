@@ -1,16 +1,17 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Repositories;
+using ASPNetProject.Repositories;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 using System.Security.Claims;
 using Cors.DBO;
 using Cors.DTO;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
-namespace Controllers
-{
+namespace ASPNetProject.Controllers;
+
     [ApiController]
     [Route("api/auth")]    
     [Authorize]
@@ -28,13 +29,13 @@ namespace Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public IActionResult Login([FromBody] UserDTO.UserRequest loginRequest)
+        public async Task<IActionResult> Login([FromBody] UserDTO.UserRequest loginRequest)
         {
             if (loginRequest == null || string.IsNullOrWhiteSpace(loginRequest.Username) || string.IsNullOrWhiteSpace(loginRequest.Password))
             {
                 return BadRequest(new { message = "Username and password are required." });
             }
-            var isValidUser = _userRepository.ValidateUser(loginRequest.Username, loginRequest.Password);
+            var isValidUser = await _userRepository.ValidateUserAsync(loginRequest.Username, loginRequest.Password);
             if (!isValidUser)
             {
             return Unauthorized(new { message = "Invalid username or password." });
@@ -61,7 +62,7 @@ namespace Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddUser([FromBody] UserDTO.UserRequest request)
+        public async Task<IActionResult> AddUser([FromBody] UserDTO.UserRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
             {
@@ -73,7 +74,7 @@ namespace Controllers
                 Password = Utils.HashPassword(request.Password),
                 RoleId = request.RoleId
             };
-            var isUserAdded = _userRepository.AddUser(user);
+            var isUserAdded = await _userRepository.AddUserAsync(user);
             if (isUserAdded)
             {
                 return Ok(new { message = "User added successfully." });
@@ -83,11 +84,11 @@ namespace Controllers
 
 
         [HttpDelete("delete/{id}")]
-        public IActionResult DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
             try
             {
-                var result = _userRepository.DeleteUser(id);
+                var result = await _userRepository.DeleteUserAsync(id);
                 if (result)
                     return Ok("User data deleted successfully.");
                 return BadRequest("Failed to delete User data.");
@@ -100,11 +101,11 @@ namespace Controllers
 
 
         [HttpGet("get/all")]
-        public IActionResult GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var result = _userRepository.GetUsersPaged(page, pageSize);
+                var result = await _userRepository.GetUsersPagedAsync(page, pageSize);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -113,6 +114,4 @@ namespace Controllers
             }
         }
     }
-
-
-}
+    

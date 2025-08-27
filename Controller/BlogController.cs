@@ -2,10 +2,11 @@ using Cors.DBO;
 using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Repositories;
+using ASPNetProject.Repositories;
 
-namespace Controllers
-{
+namespace ASPNetProject.Controllers;
+
+
     [ApiController]
     [Route("api/blogs")]
     [Authorize]
@@ -158,6 +159,3 @@ namespace Controllers
                 }
             }  
     }
-
-
-}

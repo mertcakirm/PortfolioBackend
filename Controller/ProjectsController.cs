@@ -2,10 +2,12 @@ using Cors.DBO;
 using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Repositories;
+using ASPNetProject.Repositories;
+using System.Threading.Tasks;
 
-namespace Controllers
-{
+namespace ASPNetProject.Controllers;
+
+
     [ApiController]
     [Route("api/projects")]
     [Authorize]
@@ -21,11 +23,11 @@ namespace Controllers
 
         [HttpGet("get/paged")]
         [AllowAnonymous]
-        public IActionResult GetPagedProjects([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetPagedProjects([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
-                var pagedResult = _projectsRepository.GetProjectsPaged(page, pageSize);
+                var pagedResult = await _projectsRepository.GetProjectsPagedAsync(page, pageSize);
                 return Ok(pagedResult);
             }
             catch (Exception ex)
@@ -35,7 +37,7 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateProjects([FromBody] ProjectsDTO.ProjectRequest request)
+        public async Task<IActionResult> UpdateProjects([FromBody] ProjectsDTO.ProjectRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
@@ -52,7 +54,7 @@ namespace Controllers
                     href = request.href,
                     Used_skills = request.Used_skills,
                 };
-                var result = _projectsRepository.UpdateProject(project);
+                var result = await _projectsRepository.UpdateProjectAsync(project);
                 if (result)
                     return Ok("Home page updated successfully.");
                 return BadRequest("Failed to update home page.");
@@ -65,11 +67,11 @@ namespace Controllers
 
 
         [HttpDelete("delete/{id}")]
-        public IActionResult DeleteProject(int id)
+        public async Task<IActionResult> DeleteProject(int id)
         {
             try
             {
-                var result = _projectsRepository.DeleteProject(id);
+                var result = await _projectsRepository.DeleteProjectAsync(id);
                 if (result)
                     return Ok("Project data deleted successfully.");
                 return BadRequest("Failed to delete Project data.");
@@ -82,7 +84,7 @@ namespace Controllers
 
 
         [HttpPost("add")]
-        public IActionResult AddProject([FromBody] ProjectsDTO.ProjectRequest request)
+        public async Task<IActionResult> AddProject([FromBody] ProjectsDTO.ProjectRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
@@ -100,7 +102,7 @@ namespace Controllers
                     Used_skills = request.Used_skills,
                 };
 
-                var result = _projectsRepository.AddProjects(newProject);
+                var result = await _projectsRepository.AddProjectAsync(newProject);
                 if (result)
                     return Ok("Project data added successfully.");
                 return BadRequest("Failed to add project data.");
@@ -110,11 +112,4 @@ namespace Controllers
                 return StatusCode(500, $"Error adding data: {ex.Message}");
             }
         }
-
-
     }
-
-
-
-
-}

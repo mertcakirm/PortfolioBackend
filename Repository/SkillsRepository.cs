@@ -1,51 +1,72 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using ASPNetProject.data;
 using Cors.DBO;
-using Dapper;
-using MySql.Data.MySqlClient;
+using ASPNetProject.Entities;
 
-namespace Repositories
-{
+namespace ASPNetProject.Repositories;
+
     public class SkillsRepository
     {
-        private readonly MySqlConnection _connection;
+        private readonly AppDbContext _context;
 
-        public SkillsRepository(MySqlConnection connection)
+        public SkillsRepository(AppDbContext context)
         {
-            _connection = connection;
+            _context = context;
         }
 
-        public List<SkillsDBO.Skills> GetSkills()
+        public async Task<List<SkillsDBO.Skills>> GetSkillsAsync()
         {
-            const string query = "SELECT * FROM Skills WHERE isDeleted = false";
-            return _connection.Query<SkillsDBO.Skills>(query).ToList();
+            var entities = await _context.Skills
+                                         .Where(p => p.IsDeleted==false)
+                                         .ToListAsync();
+        Console.WriteLine(entities);
+
+            var result = entities.Select(e => new SkillsDBO.Skills
+            {
+                id = e.Id,
+                SkillName = e.SkillName,
+                proficiency = e.Proficiency,
+            }).ToList();
+
+            return result;
         }
 
-        public bool UpdateSkill(SkillsDBO.Skills request)
+        public async Task<bool> UpdateSkillAsync(SkillsDBO.Skills request)
         {
-            const string query = @"
-                UPDATE Skills 
-                SET SkillName = @SkillName, 
-                    proficiency = @proficiency
-                WHERE id = @id AND isDeleted = false";
-            
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            var entity = await _context.Skills.FirstOrDefaultAsync(s => s.Id == request.id && s.IsDeleted==false);
+            if (entity == null) return false;
+
+            entity.SkillName = request.SkillName;
+            entity.Proficiency = request.proficiency;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool DeleteSkill(int id)
+        public async Task<bool> DeleteSkillAsync(int id)
         {
-            const string query = "UPDATE Skills SET isDeleted = true WHERE id = @id";
-            var affectedRows = _connection.Execute(query, new { id });
-            return affectedRows > 0;
+            var entity = await _context.Skills.FirstOrDefaultAsync(s => s.Id == id);
+            if (entity == null) return false;
+
+            entity.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool AddSkill(SkillsDBO.Skills request)
+        public async Task<bool> AddSkillAsync(SkillsDBO.Skills request)
         {
-            const string query = @"
-                INSERT INTO Skills (SkillName, proficiency, isDeleted) 
-                VALUES (@SkillName, @proficiency, false)";
-            
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            var entity = new Skill
+            {
+                SkillName = request.SkillName,
+                Proficiency = request.proficiency,
+                IsDeleted = false
+            };
+
+            await _context.Skills.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
-}

@@ -1,67 +1,77 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using ASPNetProject.data;
 using Cors.DBO;
 using Cors.DTO;
-using Dapper;
-using MySql.Data.MySqlClient;
+using ASPNetProject.Entities;
 
-namespace Repositories
-{
-public class UserRepository
+namespace ASPNetProject.Repositories;
+
+    public class UserRepository
     {
-        private readonly MySqlConnection _connection;
+        private readonly AppDbContext _context;
 
-        public UserRepository(MySqlConnection connection)
+        public UserRepository(AppDbContext context)
         {
-            _connection = connection;
+            _context = context;
         }
 
-        public bool ValidateUser(string Username, string Password)
+        public async Task<bool> ValidateUserAsync(string username, string password)
         {
-            var query = @"SELECT COUNT(*) FROM User 
-                          WHERE Username = @Username AND Password = @Password AND isDeleted = false";
-            using (var command = new MySqlCommand(query, _connection))
+            var hashedPassword = Utils.HashPassword(password);
+            return await _context.Users.AnyAsync(u => u.Username == username 
+                                                     && u.Password == hashedPassword 
+                                                     && u.IsDeleted==false);
+        }
+
+        public async Task<bool> AddUserAsync(UserDBO.User request)
+        {
+            var entity = new User
             {
-                command.Parameters.AddWithValue("@Username", Username);
-                command.Parameters.AddWithValue("@Password", Utils.HashPassword(Password));
+                Username = request.Username,
+                Password = Utils.HashPassword(request.Password),
+                Roleid = request.RoleId,
+                IsDeleted = false
+            };
 
-                var result = command.ExecuteScalar();
-                return int.TryParse(result?.ToString(), out int count) && count > 0;
-            }
+            await _context.Users.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool AddUser(UserDBO.User request)
+        public async Task<bool> DeleteUserAsync(int id)
         {
-            const string query = @"
-                INSERT INTO User (Username, Password, Roleid, isDeleted)
-                VALUES (@Username, @Password, @RoleId, false)";
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            var entity = await _context.Users.FirstOrDefaultAsync(u => u.Uid == id);
+            if (entity == null) return false;
+
+            entity.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool DeleteUser(int id)
+        public async Task<PagedResult<UserDBO.User>> GetUsersPagedAsync(int page, int pageSize)
         {
-            const string query = "UPDATE User SET isDeleted = true WHERE Uid = @id";
-            var affectedRows = _connection.Execute(query, new { id });
-            return affectedRows > 0;
-        }
+            var query = _context.Users.Where(u => u.IsDeleted==false).OrderByDescending(u => u.Uid);
 
-        public PagedResult<UserDBO.User> GetUsersPaged(int page, int pageSize)
-        {
-            var offset = (page - 1) * pageSize;
+            var totalCount = await query.CountAsync();
+            var users = await query.Skip((page - 1) * pageSize)
+                                   .Take(pageSize)
+                                   .ToListAsync();
 
-            var dataQuery = @"SELECT Uid, Username, Roleid 
-                              FROM User 
-                              WHERE isDeleted = false 
-                              ORDER BY Uid DESC 
-                              LIMIT @PageSize OFFSET @Offset;";
-            var countQuery = @"SELECT COUNT(*) FROM User WHERE isDeleted = false;";
+            var resultUsers = users.Select(u => new UserDBO.User
+            {
+                Uid = u.Uid,
+                Username = u.Username,
+                RoleId = u.Roleid
+            }).ToList();
 
-            var users = _connection.Query<UserDBO.User>(dataQuery, new { PageSize = pageSize, Offset = offset }).ToList();
-            var totalCount = _connection.ExecuteScalar<int>(countQuery);
-            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            var totalPages = (int)System.Math.Ceiling(totalCount / (double)pageSize);
 
             return new PagedResult<UserDBO.User>
             {
-                Items = users,
+                Items = resultUsers,
                 TotalCount = totalCount,
                 TotalPages = totalPages,
                 CurrentPage = page,
@@ -69,4 +79,4 @@ public class UserRepository
             };
         }
     }
-}
+

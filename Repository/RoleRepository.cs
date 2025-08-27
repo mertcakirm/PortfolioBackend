@@ -1,56 +1,71 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using ASPNetProject.data;
 using Cors.DBO;
-using Dapper;
-using MySql.Data.MySqlClient;
+using ASPNetProject.Entities;
 
-namespace Repositories
-{
+namespace ASPNetProject.Repositories;
+
     public class RoleRepository
     {
-        private readonly MySqlConnection _connection;
-        public RoleRepository(MySqlConnection connection)
+        private readonly AppDbContext _context;
+
+        public RoleRepository(AppDbContext context)
         {
-            _connection = connection;
+            _context = context;
         }
 
-        public List<RoleDBO.Role> GetRoles()
+        public async Task<List<RoleDBO.Role>> GetRolesAsync()
         {
-            const string query = "SELECT * FROM Roles WHERE isDeleted = false";
-            return _connection.Query<RoleDBO.Role>(query).ToList();
+            var entities = await _context.Roles
+                                         .Where(r => r.IsDeleted==false)
+                                         .ToListAsync();
+
+            return entities.Select(r => new RoleDBO.Role
+            {
+                Roleid = r.Roleid,
+                RoleName = r.RoleName
+            }).ToList();
         }
 
-        public bool UpdateRole(RoleDBO.Role request)
+        public async Task<bool> UpdateRoleAsync(RoleDBO.Role request)
         {
-            const string query = @"
-                UPDATE Roles
-                SET RoleName = @RoleName
-                WHERE Roleid = @Roleid AND isDeleted = false";
-            
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            var entity = await _context.Roles.FirstOrDefaultAsync(r => r.Roleid == request.Roleid && r.IsDeleted==false);
+            if (entity == null) return false;
+
+            entity.RoleName = request.RoleName;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool DeleteRole(int id)
+        public async Task<bool> DeleteRoleAsync(int id)
         {
-            const string query = "UPDATE Roles SET isDeleted = true WHERE Roleid = @id";
-            var affectedRows = _connection.Execute(query, new { id });
-            return affectedRows > 0;
+            var entity = await _context.Roles.FirstOrDefaultAsync(r => r.Roleid == id);
+            if (entity == null) return false;
+
+            entity.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool AddRole(RoleDBO.Role request)
+        public async Task<bool> AddRoleAsync(RoleDBO.Role request)
         {
-            const string query = @" 
-                INSERT INTO Roles (RoleName, isDeleted) 
-                VALUES (@RoleName, false)";
-            
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            var entity = new Role
+            {
+                RoleName = request.RoleName,
+                IsDeleted = false
+            };
+
+            await _context.Roles.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public string GetRole(int roleId)
+        public async Task<string> GetRoleAsync(int roleId)
         {
-            const string query = "SELECT RoleName FROM Roles WHERE Roleid = @roleid AND isDeleted = false";
-            var result = _connection.ExecuteScalar(query, new { roleid = roleId });
-            return result?.ToString() ?? string.Empty;
+            var entity = await _context.Roles.FirstOrDefaultAsync(r => r.Roleid == roleId && r.IsDeleted==false);
+            return entity?.RoleName ?? string.Empty;
         }
     }
-}

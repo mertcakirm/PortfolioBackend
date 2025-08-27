@@ -1,13 +1,14 @@
-using Repositories;
+using ASPNetProject.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Repositories;
 using System;
 using Cors.DBO;
 using Cors.DTO;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
-namespace Controllers
-{
+namespace ASPNetProject.Controllers;
+
+
     [ApiController]
     [Route("api/education")]
     [Authorize]
@@ -22,11 +23,11 @@ namespace Controllers
 
         [HttpGet("get/all")]
         [AllowAnonymous]
-        public IActionResult GetEducationsReq()
+        public async Task<IActionResult> GetEducationsReq()
         {
             try
             {
-                var EducationData = _educationRepository.GetEducations();
+                var EducationData = await _educationRepository.GetEducationsAsync();
                 return Ok(EducationData);
             }
             catch (Exception ex)
@@ -36,10 +37,11 @@ namespace Controllers
         }
 
         [HttpPut("update")]
-        public IActionResult UpdateEducationReq([FromBody] EducationDTO.Education request)
+        public async Task<IActionResult> UpdateEducationReq([FromBody] EducationDTO.Education request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
+
             try
             {
                 var education = new EducationDBO.EducationQuery()
@@ -47,9 +49,12 @@ namespace Controllers
                     id = request.id,
                     EducationText = request.EducationText,
                 };
-                var result = _educationRepository.UpdateEducation(education);
+
+                var result = await _educationRepository.UpdateEducationAsync(education);
+
                 if (result)
                     return Ok("Education page updated successfully.");
+
                 return BadRequest("Failed to update Education page.");
             }
             catch (Exception ex)
@@ -59,13 +64,15 @@ namespace Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public IActionResult DeleteEducation(int id)
+        public async Task<IActionResult> DeleteEducation(int id)
         {
             try
             {
-                var result = _educationRepository.DeleteEducation(id);
+                var result = await _educationRepository.DeleteEducationAsync(id);
+
                 if (result)
                     return Ok("Education page data deleted successfully.");
+
                 return BadRequest("Failed to delete Education page data.");
             }
             catch (Exception ex)
@@ -73,21 +80,24 @@ namespace Controllers
                 return StatusCode(500, $"Error deleting data: {ex.Message}");
             }
         }
-
         [HttpPost("add")]
-        public IActionResult AddEducation([FromBody] EducationDTO.Education request)
+        public async Task<IActionResult> AddEducation([FromBody] EducationDTO.Education request)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid request body.");
+
             try
             {
                 var education = new EducationDBO.EducationQuery()
                 {
                     EducationText = request.EducationText,
                 };
-                var result = _educationRepository.AddEducations(education);
+
+                var result = await _educationRepository.AddEducationAsync(education);
+
                 if (result)
                     return Ok("Education page data added successfully.");
+
                 return BadRequest("Failed to add Education page data.");
             }
             catch (Exception ex)
@@ -96,6 +106,3 @@ namespace Controllers
             }
         }
     }
-
-
-}

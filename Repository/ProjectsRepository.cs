@@ -1,86 +1,95 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using ASPNetProject.data;
 using Cors.DBO;
 using Cors.DTO;
-using Dapper;
-using MySql.Data.MySqlClient;
+using ASPNetProject.Entities;
 
-namespace Repositories
-{
+namespace ASPNetProject.Repositories;
+
     public class ProjectsRepository
     {
-        private readonly MySqlConnection _connection;
-        public ProjectsRepository(MySqlConnection connection)
+        private readonly AppDbContext _context;
+        public ProjectsRepository(AppDbContext context)
         {
-            _connection = connection;
+            _context = context;
         }
 
-        public PagedResult<ProjectsDBO.Projects> GetProjectsPaged(int page, int pageSize)
+        public async Task<PagedResult<ProjectsDBO.Projects>> GetProjectsPagedAsync(int page, int pageSize)
         {
-            var offset = (page - 1) * pageSize;
-
-            const string dataQuery = @"
-        SELECT * FROM Projects
-        WHERE isDeleted = false
-        ORDER BY id DESC
-        LIMIT @PageSize OFFSET @Offset;
-    ";
-
-            const string countQuery = @"SELECT COUNT(*) FROM Projects WHERE isDeleted = false;";
-
-            var projects = _connection.Query<ProjectsDBO.Projects>(dataQuery, new { PageSize = pageSize, Offset = offset }).ToList();
-            var totalCount = _connection.ExecuteScalar<int>(countQuery);
+            var query = _context.Projects.Where(p => p.IsDeleted==false).OrderByDescending(p => p.Id);
+            var totalCount = await query.CountAsync();
+            var projects = await query.Skip((page - 1) * pageSize)
+                                      .Take(pageSize)
+                                      .ToListAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
             return new PagedResult<ProjectsDBO.Projects>
             {
-                Items = projects,
+                Items = projects.Select(p => new ProjectsDBO.Projects
+                {
+                    id = p.Id,
+                    title_tr = p.TitleTr,
+                    description_tr = p.DescriptionTr,
+                    title_en = p.TitleEn,
+                    description_en = p.DescriptionEn,
+                    image_base64 = p.ImageBase64,
+                    href = p.Href,
+                    Used_skills = p.UsedSkills
+                }).ToList(),
                 TotalCount = totalCount,
                 TotalPages = totalPages,
                 CurrentPage = page,
                 PageSize = pageSize
             };
         }
-        public bool UpdateProject(ProjectsDBO.Projects request)
+
+        public async Task<bool> UpdateProjectAsync(ProjectsDBO.Projects request)
         {
-            const string query = @"
-                UPDATE Projects
-                SET title_tr = @title_tr,
-                    description_tr = @description_tr,
-                    title_en = @title_en,
-                    description_en = @description_en,
-                    image_base64 = @image_base64,
-                    href = @href,
-                    Used_skills = @Used_skills
-                WHERE id = @id AND isDeleted = false";
-            
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            var entity = await _context.Projects.FirstOrDefaultAsync(p => p.Id == request.id && p.IsDeleted==false);
+            if (entity == null) return false;
+
+            entity.TitleTr = request.title_tr;
+            entity.DescriptionTr = request.description_tr;
+            entity.TitleEn = request.title_en;
+            entity.DescriptionEn = request.description_en;
+            entity.ImageBase64 = request.image_base64;
+            entity.Href = request.href;
+            entity.UsedSkills = request.Used_skills;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool DeleteProject(int id)
+        public async Task<bool> DeleteProjectAsync(int id)
         {
-            const string query = "UPDATE Projects SET isDeleted = true WHERE id = @id";
-            var affectedRows = _connection.Execute(query, new { id });
-            return affectedRows > 0;
+            var entity = await _context.Projects.FirstOrDefaultAsync(p => p.Id == id);
+            if (entity == null) return false;
+
+            entity.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool AddProjects(ProjectsDBO.Projects request)
+        public async Task<bool> AddProjectAsync(ProjectsDBO.Projects request)
         {
-            try
+            var entity = new Project
             {
-                const string query = @"
-                    INSERT INTO Projects 
-                    (title_tr, description_tr, title_en, description_en, image_base64, href, Used_skills, isDeleted) 
-                    VALUES 
-                    (@title_tr, @description_tr, @title_en, @description_en, @image_base64, @href, @Used_skills, false)";
-                
-                var affectedRows = _connection.Execute(query, request);
-                return affectedRows > 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return false;
-            }
+                TitleTr = request.title_tr,
+                DescriptionTr = request.description_tr,
+                TitleEn = request.title_en,
+                DescriptionEn = request.description_en,
+                ImageBase64 = request.image_base64,
+                Href = request.href,
+                UsedSkills = request.Used_skills,
+                IsDeleted = false
+            };
+
+            await _context.Projects.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
-}

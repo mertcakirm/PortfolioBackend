@@ -1,8 +1,9 @@
+using ASPNetProject.data;
+using ASPNetProject.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using MySql.Data.MySqlClient;
-using Repositories;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,13 +22,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-// MySQL bağlantısı (Dapper için açık bağlantı)
-builder.Services.AddScoped(sp =>
-{
-    var con = new MySqlConnection(builder.Configuration["ConnectionStrings:DefaultConnection"]);
-    con.Open();
-    return con;
-});
+// EF Core DbContext (Database First)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(8, 0, 36)) 
+    )
+);
 
 // Repository’ler
 builder.Services.AddScoped<MainpageRepository>();
@@ -40,6 +41,7 @@ builder.Services.AddScoped<BlogRepository>();
 
 // Controller desteği
 builder.Services.AddControllers();
+
 
 // Swagger Desteği
 builder.Services.AddEndpointsApiExplorer();
@@ -66,7 +68,7 @@ builder.Services.AddSwaggerGen(c =>
 
 // Authorization
 builder.Services.AddAuthorization();
-
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.WebHost.UseUrls("http://localhost:5260");
 
 var app = builder.Build();

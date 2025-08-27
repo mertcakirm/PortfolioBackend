@@ -1,53 +1,69 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using ASPNetProject.data;
 using Cors.DBO;
-using Dapper;
-using MySql.Data.MySqlClient;
+using ASPNetProject.Entities;
 
-namespace Repositories
-{
+namespace ASPNetProject.Repositories;
+
+
     public class EducationRepository
     {
-        private readonly MySqlConnection _connection;
+        private readonly AppDbContext _context;
 
-        public EducationRepository(MySqlConnection connection)
+        public EducationRepository(AppDbContext context)
         {
-            _connection = connection;
+            _context = context;
         }
 
-        public List<EducationDBO.EducationQuery> GetEducations()
+        public async Task<List<EducationDBO.EducationQuery>> GetEducationsAsync()
         {
-            const string query = "SELECT * FROM Educations WHERE isDeleted = false";
-            return _connection.Query<EducationDBO.EducationQuery>(query).ToList();
+            return await _context.Educations
+                                 .Select(e => new EducationDBO.EducationQuery
+                                 {
+                                     id = e.Id,
+                                     EducationText = e.EducationText,
+                                     Egitim = e.Egitim
+                                 })
+                                 .ToListAsync();
         }
 
-        public bool UpdateEducation(EducationDBO.EducationQuery request)
+        public async Task<bool> UpdateEducationAsync(EducationDBO.EducationQuery request)
         {
-            const string query = @"
-                UPDATE Educations 
-                SET EducationText = @EducationText, 
-                    Egitim = @Egitim
-                WHERE id = @id AND isDeleted = false";
-            
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            var entity = await _context.Educations
+                                       .FirstOrDefaultAsync(e => e.Id == request.id);
+            if (entity == null) return false;
+
+            entity.EducationText = request.EducationText;
+            entity.Egitim = request.Egitim;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool DeleteEducation(int id)
+        public async Task<bool> DeleteEducationAsync(int id)
         {
-            const string query = "UPDATE Educations SET isDeleted = true WHERE id = @id";
-            var affectedRows = _connection.Execute(query, new { id });
-            return affectedRows > 0;
+            var entity = await _context.Educations.FirstOrDefaultAsync(e => e.Id == id);
+            if (entity == null) return false;
+
+            entity.IsDeleted = true;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool AddEducations(EducationDBO.EducationQuery request)
+        public async Task<bool> AddEducationAsync(EducationDBO.EducationQuery request)
         {
-            const string query = @"
-                INSERT INTO Educations (EducationText, Egitim, isDeleted) 
-                VALUES (@EducationText, @Egitim, false)";
+            var entity = new Education
+            {
+                EducationText = request.EducationText,
+                Egitim = request.Egitim,
+                IsDeleted = false
+            };
 
-            var affectedRows = _connection.Execute(query, request);
-            return affectedRows > 0;
+            await _context.Educations.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
-}
